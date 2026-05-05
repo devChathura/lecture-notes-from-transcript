@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-Lecture subtitle files such as `.srt` and `.vtt` contain useful spoken content, but they are optimized for playback, not study. In their raw form, transcripts are noisy, difficult to scan, and time-consuming to turn into meaningful notes. Students and self-directed learners often spend more effort parsing the transcript than learning from it.
+Lecture subtitle files such as `.srt` and `.vtt` contain useful spoken content, but they are optimized for playback, not study. In their raw form, transcripts are noisy, difficult to scan, and time-consuming to turn into meaningful notes. Transcripts lack semantic structure such as topic grouping, emphasis, and hierarchy, making them inefficient for revision. Students and self-directed learners often spend more effort parsing the transcript than learning from it.
 
 This project solves that problem by converting raw subtitle files into structured, readable study notes. The system removes timecodes, cleans transcript text, groups related ideas, and uses AI to produce a clear hierarchy of headings, summaries, and key terminology.
 
@@ -64,8 +64,9 @@ Tertiary users are educators and content creators who want to repurpose their ow
 - NFR1: The system should process small subtitle files in under 10 seconds.
 - NFR2: The output structure should remain consistent across similar inputs.
 - NFR3: The system should handle larger transcripts gracefully without failing.
-- NFR4: The interface should remain simple, readable, and easy to use.
-- NFR5: The application should provide visible processing feedback during long-running operations.
+- NFR4: The system should fail gracefully and provide feedback for unsupported or corrupted files.
+- NFR5: The interface should remain simple, readable, and easy to use.
+- NFR6: The application should provide visible processing feedback during long-running operations.
 
 ## Constraints
 
@@ -78,6 +79,6 @@ Tertiary users are educators and content creators who want to repurpose their ow
 
 - The system can process a standard 1-hour lecture transcript of roughly 8,000 words and generate notes in under 15 seconds.
 - The parser removes timecodes and subtitle metadata correctly from standard `.srt` and `.vtt` files without crashing.
-- The generated notes follow the expected structure with headings, bullet summaries, and a key concepts section.
+- At least 90% of generated outputs contain all required sections (headings, bullet points, key concepts).
 - The output stays grounded in the transcript and avoids inventing facts not supported by the source material.
 - Users can successfully copy or download the generated notes in Markdown format.
