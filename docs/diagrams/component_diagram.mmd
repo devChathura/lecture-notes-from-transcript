@@ -1,0 +1,13 @@
+graph TD
+    subgraph "Node.js Backend"
+        Controller[Upload Controller] --> 
+        Validator[File Validator] -->
+        Parser[Transcript Parser]
+        Parser --> Chunker[Chunking Engine]
+        Chunker --> Orchestrator[AI Orchestrator]
+        Orchestrator --> Formatter[Output Formatter]
+    end
+
+    SPA[React Frontend] -- ".srt File" --> Controller
+    Orchestrator -- "Context Chunks" --> LLM[External AI API]
+    Formatter -- "Markdown Response" --> SPA
