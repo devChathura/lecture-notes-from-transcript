@@ -87,4 +87,8 @@ We utilize a "System Persona" to enforce output reliability.
 
 ## 8. Folder Strcuture
 
-<!-- NOT YET IMPLEMENTED -->
+![ Folder Structure](./diagrams/folder_structure_overview.png)
+
+**Detailed Folder Structure**
+
+![ Folder Structure Detailed](./diagrams/folder_structure_detailed.png)

@@ -1,0 +1,129 @@
+graph LR
+    %% Root Directory
+    Root["📂 lecture-companion/"]
+    Docs["📂 docs/ <br><i>Project documentation</i>"]
+    Client["📂 client/ <br><i>React Frontend (Vite)</i>"]
+    Server["📂 server/ <br><i>Node.js/Express Backend</i>"]
+    Gitignore["📄 .gitignore <br><i>Root gitignore</i>"]
+    Readme["📄 README.md <br><i>Main project introduction</i>"]
+
+    Root --> Docs
+    Root --> Client
+    Root --> Server
+    Root --> Gitignore
+    Root --> Readme
+
+    %% Client Level
+    C_Public["📂 public/ <br><i>Static assets</i>"]
+    C_Src["📂 src/"]
+    C_Env["📄 .env <br><i>Frontend env variables</i>"]
+    C_Pkg["📄 package.json"]
+
+    Client --> C_Public
+    Client --> C_Src
+    Client --> C_Env
+    Client --> C_Pkg
+
+    %% Client Src Level
+    C_Api["📂 api/ <br><i>API client configuration</i>"]
+    C_Comp["📂 components/ <br><i>Reusable UI parts</i>"]
+    C_Hooks["📂 hooks/ <br><i>Custom React hooks</i>"]
+    C_Pages["📂 pages/ <br><i>Top-level routes</i>"]
+    C_Utils["📂 utils/ <br><i>Helper functions</i>"]
+    C_App["📄 App.jsx <br><i>Main app layout & routing</i>"]
+    C_Main["📄 main.jsx <br><i>React DOM entry point</i>"]
+
+    C_Src --> C_Api
+    C_Src --> C_Comp
+    C_Src --> C_Hooks
+    C_Src --> C_Pages
+    C_Src --> C_Utils
+    C_Src --> C_App
+    C_Src --> C_Main
+
+    %% Server Level
+    S_Src["📂 src/"]
+    
+    Server --> S_Src
+
+    %% Server Src Subdirectories & Root Files
+    Config["📂 config/"]
+    Controllers["📂 controllers/"]
+    Middlewares["📂 middlewares/"]
+    Routes["📂 routes/"]
+    Services["📂 services/"]
+    Utils["📂 utils/"]
+    App["📄 app.js"]
+    ServerJS["📄 server.js"]
+
+    S_Src --> Config
+    S_Src --> Controllers
+    S_Src --> Middlewares
+    S_Src --> Routes
+    S_Src --> Services
+    S_Src --> Utils
+    S_Src --> App
+    S_Src --> ServerJS
+
+    %% Config Files
+    Env["📄 env.js"]
+    AiConfig["📄 aiConfig.js"]
+    Config --> Env
+    Config --> AiConfig
+
+    %% Controller Files
+    NoteCtrl["📄 noteController.js"]
+    Controllers --> NoteCtrl
+
+    %% Middleware Files
+    MulterSetup["📄 multerSetup.js"]
+    ErrorHandler["📄 errorHandler.js"]
+    Middlewares --> MulterSetup
+    Middlewares --> ErrorHandler
+
+    %% Route Files
+    NoteRoutes["📄 noteRoutes.js"]
+    Routes --> NoteRoutes
+
+    %% Service Subdirectories
+    Transcript["📂 transcript/"]
+    AI["📂 ai/"]
+    Pipeline["📂 pipeline/"]
+
+    Services --> Transcript
+    Services --> AI
+    Services --> Pipeline
+
+    %% Transcript Services
+    ParserSvc["📄 parserService.js"]
+    CleaningSvc["📄 cleaningService.js"]
+    ChunkingSvc["📄 chunkingService.js"]
+    Transcript --> ParserSvc
+    Transcript --> CleaningSvc
+    Transcript --> ChunkingSvc
+
+    %% AI Services
+    AiSvc["📄 aiService.js"]
+    PromptBuilder["📄 promptBuilder.js"]
+    ResponseFormatter["📄 responseFormatter.js"]
+    AI --> AiSvc
+    AI --> PromptBuilder
+    AI --> ResponseFormatter
+
+    %% Pipeline Services
+    NoteGenPipeline["📄 noteGenerationPipeline.js"]
+    Pipeline --> NoteGenPipeline
+
+    %% Utils Files
+    Logger["📄 logger.js"]
+    Utils --> Logger
+
+    %% Styling Definitions
+    classDef folder fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000;
+    classDef file fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000;
+    classDef rootFolder fill:#c8e6c9,stroke:#1b5e20,stroke-width:3px,color:#000;
+
+    %% Apply Styles
+    class Root rootFolder;
+    class Docs,Client,Server,C_Public,C_Src,C_Api,C_Comp,C_Hooks,C_Pages,C_Utils,S_Src,Config,Controllers,Middlewares,Routes,Services,Transcript,AI,Pipeline,Utils folder;
+    class Gitignore,Readme,C_Env,C_Pkg,C_App,C_Main,Env,AiConfig,NoteCtrl,MulterSetup,ErrorHandler,NoteRoutes,ParserSvc,CleaningSvc,ChunkingSvc,AiSvc,PromptBuilder,ResponseFormatter,NoteGenPipeline,Logger,App,ServerJS file;
