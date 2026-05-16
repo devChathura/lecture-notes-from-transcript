@@ -1,0 +1,4 @@
+graph TD
+    User((Student/Learner)) -- Uploads .srt/.vtt & <br/> receives notes --> System[Lecture notes from transcript System]
+    System -- Sends cleaned transcript <br/> chunks --> AIService[External AI API]
+    AIService -- Returns structured <br/> summaries/notes --> System

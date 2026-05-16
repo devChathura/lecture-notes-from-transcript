@@ -1,0 +1,9 @@
+graph LR
+    User((Student)) -- Uses --> SPA[React Frontend]
+    
+    subgraph "Lecture notes from transcript System"
+        SPA -- "Sends file (POST /api/generate)" --> API[Node.js/Express API]
+        API -- "Returns Markdown JSON" --> SPA
+    end
+
+    API -- "HTTPS/JSON Prompting" --> LLM[External AI API]
