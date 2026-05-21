@@ -1,0 +1,26 @@
+{
+  "name": "lecture-companion-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
+  "keywords": [
+    "ai",
+    "notes",
+    "srt",
+    "express",
+    "lecture"
+  ],
+  "author": "Chathura Hapukotuwa",
+  "license": "ISC",
+  "description": "Backend API for AI powered lecture note generation from subtitle files.",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
