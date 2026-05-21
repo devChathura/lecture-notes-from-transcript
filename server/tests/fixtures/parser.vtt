@@ -1,0 +1,11 @@
+WEBVTT - Some random metadata
+
+1
+00:00:01.000 --> 00:00:04.500
+Welcome back.
+
+00:05.000 --> 00:08.000
+This cue has no hour component.
+
+00:10.000 --> 00:12.000
+<i>Styled text.</i>
