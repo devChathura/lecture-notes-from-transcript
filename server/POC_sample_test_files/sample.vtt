@@ -1,0 +1,1130 @@
+WEBVTT
+
+1
+00:00:01.210 --> 00:00:04.370
+<v Instructor>In this lecture, let's implement a better way</v>
+
+2
+00:00:04.370 --> 00:00:07.853
+of catching errors in all our async functions.
+
+3
+00:00:09.310 --> 00:00:12.180
+So right now, in all our async functions,
+
+4
+00:00:12.180 --> 00:00:15.750
+we have these try catch blocks, right?
+
+5
+00:00:15.750 --> 00:00:20.430
+So, remember how we added to all of these handle functions
+
+6
+00:00:20.430 --> 00:00:23.930
+this try and then this catch block, okay?
+
+7
+00:00:23.930 --> 00:00:26.430
+And so all of them have this
+
+8
+00:00:26.430 --> 00:00:28.900
+because all of them are async functions
+
+9
+00:00:28.900 --> 00:00:31.930
+and that's how we usually catch the errors
+
+10
+00:00:31.930 --> 00:00:33.863
+inside of an asynchronous function.
+
+11
+00:00:34.800 --> 00:00:37.100
+So using a try catch block.
+
+12
+00:00:37.100 --> 00:00:41.170
+Now that really makes our code look messy and unfocused
+
+13
+00:00:41.170 --> 00:00:44.740
+so the goal of this createTour method here, for example,
+
+14
+00:00:44.740 --> 00:00:46.560
+is to just run this code.
+
+15
+00:00:46.560 --> 00:00:48.500
+We actually do not want to mess around
+
+16
+00:00:48.500 --> 00:00:49.934
+with error handling here,
+
+17
+00:00:49.934 --> 00:00:53.450
+so right now we have these two extra blocks,
+
+18
+00:00:53.450 --> 00:00:55.690
+try and catch, and with that comes
+
+19
+00:00:55.690 --> 00:00:57.900
+this extra indentation here
+
+20
+00:00:57.900 --> 00:01:01.730
+and so again, this really makes our code look not clean.
+
+21
+00:01:01.730 --> 00:01:03.550
+It's really not focused.
+
+22
+00:01:03.550 --> 00:01:05.940
+Also, we have a lot of duplicate code here
+
+23
+00:01:05.940 --> 00:01:07.830
+because in each of these handlers,
+
+24
+00:01:07.830 --> 00:01:10.310
+we have quite a similar catch block.
+
+25
+00:01:10.310 --> 00:01:12.250
+So in all of this, all we're doing is
+
+26
+00:01:12.250 --> 00:01:14.690
+really to send this response.
+
+27
+00:01:14.690 --> 00:01:17.490
+And that response would actually not even be sent here
+
+28
+00:01:17.490 --> 00:01:20.900
+but instead in our global error handling middleware,
+
+29
+00:01:20.900 --> 00:01:23.010
+remember, but that's another topic.
+
+30
+00:01:23.010 --> 00:01:24.910
+For now, what I'm trying to focus here
+
+31
+00:01:24.910 --> 00:01:27.170
+is that these try catch blocks inside
+
+32
+00:01:27.170 --> 00:01:30.840
+of each of our async functions are not ideal
+
+33
+00:01:30.840 --> 00:01:34.010
+and so let's now try to fix that.
+
+34
+00:01:34.010 --> 00:01:37.100
+And the solution is to basically take the try catch block
+
+35
+00:01:37.100 --> 00:01:39.890
+out of here and put it on a higher level
+
+36
+00:01:39.890 --> 00:01:41.450
+in another function.
+
+37
+00:01:41.450 --> 00:01:43.000
+So basically what we're gonna do
+
+38
+00:01:43.000 --> 00:01:44.470
+is to create a function,
+
+39
+00:01:44.470 --> 00:01:49.326
+and then wrap this async function into that function.
+
+40
+00:01:49.326 --> 00:01:50.630
+All right?
+
+41
+00:01:50.630 --> 00:01:53.333
+And so let me call that one catchAsync.
+
+42
+00:01:56.960 --> 00:02:00.290
+So catchAsync, and I'm calling it this way
+
+43
+00:02:00.290 --> 00:02:02.380
+because the goal of this function
+
+44
+00:02:02.380 --> 00:02:05.410
+is to simply catch our asynchronous errors.
+
+45
+00:02:05.410 --> 00:02:06.613
+So simple, right?
+
+46
+00:02:07.500 --> 00:02:09.840
+So into this catchAsync function,
+
+47
+00:02:09.840 --> 00:02:13.660
+we will pass in a function, okay?
+
+48
+00:02:13.660 --> 00:02:16.820
+And remember, the function that we're gonna pass in
+
+49
+00:02:16.820 --> 00:02:19.030
+is basically this one.
+
+50
+00:02:19.030 --> 00:02:21.678
+So now that we're working with this example
+
+51
+00:02:21.678 --> 00:02:25.420
+the function that we will pass into the catchAsync
+
+52
+00:02:25.420 --> 00:02:27.840
+is this function because this is where we want
+
+53
+00:02:27.840 --> 00:02:30.033
+to catch the asynchronous errors.
+
+54
+00:02:31.030 --> 00:02:32.563
+So let's actually do that.
+
+55
+00:02:34.090 --> 00:02:39.090
+So fn, and then wrap that entire function into there.
+
+56
+00:02:40.950 --> 00:02:43.340
+So next up, what we then have to do
+
+57
+00:02:43.340 --> 00:02:45.440
+is to actually call this function in here.
+
+58
+00:02:46.670 --> 00:02:49.640
+So call it, and this function should receive
+
+59
+00:02:49.640 --> 00:02:53.810
+request, response, and in fact, also next.
+
+60
+00:02:53.810 --> 00:02:57.440
+So this one here should actually also have next
+
+61
+00:02:57.440 --> 00:02:58.860
+and all the others, as well,
+
+62
+00:02:58.860 --> 00:03:01.260
+because remember, we need the next function
+
+63
+00:03:01.260 --> 00:03:03.540
+in order to pass the error into it
+
+64
+00:03:03.540 --> 00:03:05.660
+so that that error can then be handled
+
+65
+00:03:05.660 --> 00:03:08.470
+in the global error handling middleware.
+
+66
+00:03:08.470 --> 00:03:10.360
+So all of these functions are gonna need
+
+67
+00:03:10.360 --> 00:03:12.063
+request, response, and next.
+
+68
+00:03:12.950 --> 00:03:14.540
+But let's leave that for later.
+
+69
+00:03:14.540 --> 00:03:17.090
+For now, let's really focus on our catchAsync here.
+
+70
+00:03:19.180 --> 00:03:22.120
+So this function here that we passed into async,
+
+71
+00:03:22.120 --> 00:03:24.290
+which is now called fn up here,
+
+72
+00:03:24.290 --> 00:03:26.040
+is an asynchronous function.
+
+73
+00:03:26.040 --> 00:03:28.080
+And remember that asynchronous functions
+
+74
+00:03:28.080 --> 00:03:30.490
+return promises, right?
+
+75
+00:03:30.490 --> 00:03:33.500
+And when there is an error inside of an async function,
+
+76
+00:03:33.500 --> 00:03:37.310
+that basically means that the promise gets rejected.
+
+77
+00:03:37.310 --> 00:03:40.160
+And so up here, where we actually call that function,
+
+78
+00:03:40.160 --> 00:03:41.893
+we can then catch that error.
+
+79
+00:03:43.790 --> 00:03:46.040
+So we catch it here, instead of catching it
+
+80
+00:03:46.040 --> 00:03:48.590
+in the try catch block.
+
+81
+00:03:48.590 --> 00:03:53.590
+So catch, and error, and then next, and pass the error.
+
+82
+00:03:57.040 --> 00:03:58.160
+And we can simplify this,
+
+83
+00:03:58.160 --> 00:04:01.810
+but for now let's remove the try catch block here,
+
+84
+00:04:01.810 --> 00:04:05.103
+and so simply focus on this piece.
+
+85
+00:04:07.580 --> 00:04:08.920
+So this is all we want
+
+86
+00:04:08.920 --> 00:04:12.110
+and we no longer need the try catch block,
+
+87
+00:04:12.110 --> 00:04:15.660
+again, because that catch is now basically transferred
+
+88
+00:04:15.660 --> 00:04:17.113
+to here, to this line.
+
+89
+00:04:18.500 --> 00:04:20.350
+It's no longer a catch block,
+
+90
+00:04:20.350 --> 00:04:22.560
+because in here it's just easier to use
+
+91
+00:04:22.560 --> 00:04:26.060
+the promise that the fn function returns.
+
+92
+00:04:26.060 --> 00:04:29.640
+So again, this fn function is this function,
+
+93
+00:04:29.640 --> 00:04:32.270
+so the one that we passed into catchAsync,
+
+94
+00:04:32.270 --> 00:04:34.650
+and so that is gonna return a promise.
+
+95
+00:04:34.650 --> 00:04:37.100
+And actually, I noticed here that this, of course,
+
+96
+00:04:37.100 --> 00:04:40.110
+should be called catchAsync, all right?
+
+97
+00:04:40.110 --> 00:04:41.800
+And then so that function that we passed
+
+98
+00:04:41.800 --> 00:04:45.447
+into catchAsync, this one is of course then fn.
+
+99
+00:04:45.447 --> 00:04:46.280
+All right?
+
+100
+00:04:46.280 --> 00:04:48.980
+So the argument that we passed in there.
+
+101
+00:04:48.980 --> 00:04:51.590
+Now there are actually two big problems
+
+102
+00:04:51.590 --> 00:04:54.180
+with the way that this is implemented right now
+
+103
+00:04:54.180 --> 00:04:57.240
+and so this way, it wouldn't really work at all.
+
+104
+00:04:57.240 --> 00:04:59.340
+So first one, this function call here
+
+105
+00:04:59.340 --> 00:05:03.213
+has no way of knowing request, response, and next.
+
+106
+00:05:04.300 --> 00:05:07.460
+We did not pass them into catchAsync here,
+
+107
+00:05:07.460 --> 00:05:09.300
+and so really there's no way
+
+108
+00:05:09.300 --> 00:05:12.693
+for the function to know the values of these parameters.
+
+109
+00:05:13.658 --> 00:05:15.610
+And second is that right here
+
+110
+00:05:15.610 --> 00:05:18.473
+we are actually calling the async function.
+
+111
+00:05:20.290 --> 00:05:22.290
+And to see this a bit better, let's just
+
+112
+00:05:23.200 --> 00:05:24.873
+get completely rid of this code.
+
+113
+00:05:26.370 --> 00:05:29.520
+So here we have catchAsync and we are then calling it
+
+114
+00:05:29.520 --> 00:05:31.153
+using the parentheses of course.
+
+115
+00:05:32.350 --> 00:05:34.900
+And then inside of catchAsync we are also then
+
+116
+00:05:34.900 --> 00:05:37.760
+right away calling the fn function,
+
+117
+00:05:37.760 --> 00:05:40.130
+and that's not how it is supposed to work.
+
+118
+00:05:40.130 --> 00:05:43.060
+So createTour here should really be a function
+
+119
+00:05:43.060 --> 00:05:45.840
+but not the result of calling a function.
+
+120
+00:05:45.840 --> 00:05:47.810
+But that's right now what's happening.
+
+121
+00:05:47.810 --> 00:05:49.940
+So right now catchAsync is being called,
+
+122
+00:05:49.940 --> 00:05:54.310
+which then calls this function here, okay?
+
+123
+00:05:54.310 --> 00:05:56.890
+And so again, this function should not called,
+
+124
+00:05:56.890 --> 00:05:59.360
+but instead it should sit here and wait
+
+125
+00:05:59.360 --> 00:06:01.460
+until express calls it.
+
+126
+00:06:01.460 --> 00:06:03.310
+And express will of course call it
+
+127
+00:06:03.310 --> 00:06:05.400
+as soon as someone hits the route
+
+128
+00:06:05.400 --> 00:06:08.390
+that needs this control function.
+
+129
+00:06:08.390 --> 00:06:11.980
+And so the solution to that is to basically make
+
+130
+00:06:11.980 --> 00:06:15.030
+the catchAsync function return another function
+
+131
+00:06:15.030 --> 00:06:18.060
+which is then gonna be assigned to createTour
+
+132
+00:06:18.060 --> 00:06:19.640
+and so that function can then
+
+133
+00:06:19.640 --> 00:06:21.483
+later be called when necessary.
+
+134
+00:06:23.294 --> 00:06:24.394
+So let's do that here.
+
+135
+00:06:25.590 --> 00:06:28.480
+So let's return an anonymous function
+
+136
+00:06:28.480 --> 00:06:30.890
+and so remember that this is the function
+
+137
+00:06:30.890 --> 00:06:32.900
+that express is then gonna call.
+
+138
+00:06:32.900 --> 00:06:35.380
+And so here is where we then specify
+
+139
+00:06:35.380 --> 00:06:38.423
+request, response, and next.
+
+140
+00:06:41.120 --> 00:06:43.763
+Actually missing the arrow here.
+
+141
+00:06:47.230 --> 00:06:48.480
+And all right.
+
+142
+00:06:48.480 --> 00:06:49.890
+And that's actually it.
+
+143
+00:06:49.890 --> 00:06:52.420
+That's our catchAsync function.
+
+144
+00:06:52.420 --> 00:06:54.610
+Just remember how I said that we could simplify it
+
+145
+00:06:54.610 --> 00:06:56.840
+and that's just because, in JavaScript,
+
+146
+00:06:56.840 --> 00:06:59.110
+we can simplify it like this
+
+147
+00:06:59.110 --> 00:07:01.777
+so all we need to pass here is the function,
+
+148
+00:07:01.777 --> 00:07:04.020
+and it will then be called automatically
+
+149
+00:07:04.020 --> 00:07:06.810
+with the parameter that this callback receives.
+
+150
+00:07:06.810 --> 00:07:09.263
+So it's the same as writing next.
+
+151
+00:07:11.500 --> 00:07:13.290
+So let's recap here.
+
+152
+00:07:13.290 --> 00:07:16.490
+So in order to get rid our try catch blocks,
+
+153
+00:07:16.490 --> 00:07:19.230
+we simply wrapped our asynchronous function
+
+154
+00:07:19.230 --> 00:07:23.010
+inside of the catchAsync function that we just created.
+
+155
+00:07:23.010 --> 00:07:26.160
+This function will then return a new anonymous function,
+
+156
+00:07:26.160 --> 00:07:27.690
+which is this one here,
+
+157
+00:07:27.690 --> 00:07:31.660
+which will then be assigned to createTour.
+
+158
+00:07:31.660 --> 00:07:34.200
+And so basically it is this function here
+
+159
+00:07:34.200 --> 00:07:36.940
+that will get called as soon as a new tour
+
+160
+00:07:36.940 --> 00:07:40.010
+should be created using the createTour handler.
+
+161
+00:07:40.010 --> 00:07:42.960
+And so that's why it has the exact same signature here
+
+162
+00:07:42.960 --> 00:07:47.520
+as this async function, with request, response, and next.
+
+163
+00:07:47.520 --> 00:07:49.740
+Now what this function here will then do
+
+164
+00:07:49.740 --> 00:07:51.320
+is that it will call the function
+
+165
+00:07:51.320 --> 00:07:53.440
+that we passed in initially,
+
+166
+00:07:53.440 --> 00:07:54.990
+so this one here,
+
+167
+00:07:54.990 --> 00:07:58.270
+and it will then execute all the code that is in there.
+
+168
+00:07:58.270 --> 00:08:00.670
+Now since it's an async function here,
+
+169
+00:08:00.670 --> 00:08:02.380
+it will return a promise
+
+170
+00:08:02.380 --> 00:08:05.610
+and therefore, in case there is an error in this promise
+
+171
+00:08:05.610 --> 00:08:08.400
+or in other words, in case it gets rejected,
+
+172
+00:08:08.400 --> 00:08:11.090
+we can then catch the error that happened
+
+173
+00:08:11.090 --> 00:08:15.193
+using the catch method that is available on all promises.
+
+174
+00:08:16.560 --> 00:08:19.510
+And in the end, it is this catch method here
+
+175
+00:08:19.510 --> 00:08:22.670
+which will pass the error into the next function
+
+176
+00:08:22.670 --> 00:08:24.780
+which will then make it so that our error
+
+177
+00:08:24.780 --> 00:08:27.943
+ends up in our global error handling middleware.
+
+178
+00:08:28.890 --> 00:08:31.020
+So this here, this line of code,
+
+179
+00:08:31.020 --> 00:08:33.510
+is really where all the magic happens,
+
+180
+00:08:33.510 --> 00:08:35.440
+and this is, in fact, what allows us
+
+181
+00:08:35.440 --> 00:08:38.893
+to get rid of the catch block that we had previously.
+
+182
+00:08:39.770 --> 00:08:40.603
+And a note:
+
+183
+00:08:40.603 --> 00:08:43.710
+this is quite complicated to wrap your head around
+
+184
+00:08:43.710 --> 00:08:46.460
+and in case that it's not 100% clear,
+
+185
+00:08:46.460 --> 00:08:48.943
+don't worry, it's not all that important.
+
+186
+00:08:49.792 --> 00:08:53.010
+This is really just about figuring out how exactly
+
+187
+00:08:53.010 --> 00:08:56.460
+asynchronous code works behind the scenes in JavaScript.
+
+188
+00:08:56.460 --> 00:09:00.100
+So it's not really so much about express or Node.js,
+
+189
+00:09:00.100 --> 00:09:04.060
+this is more about how asynchronous code works.
+
+190
+00:09:04.060 --> 00:09:06.560
+Now anyway, if we now create a new tour
+
+191
+00:09:06.560 --> 00:09:08.040
+and some error happens,
+
+192
+00:09:08.040 --> 00:09:10.440
+for example, from an invalid input,
+
+193
+00:09:10.440 --> 00:09:13.450
+then that error should of course be catched here
+
+194
+00:09:13.450 --> 00:09:15.120
+in this catch function,
+
+195
+00:09:15.120 --> 00:09:18.270
+and will then be propagated to our error handling middleware
+
+196
+00:09:18.270 --> 00:09:21.870
+and so that one will then send back the error response
+
+197
+00:09:21.870 --> 00:09:24.570
+that we're expected to receive.
+
+198
+00:09:24.570 --> 00:09:26.973
+And so let's now actually try that out.
+
+199
+00:09:28.080 --> 00:09:30.500
+So create a new tour.
+
+200
+00:09:30.500 --> 00:09:32.030
+Here we have the body,
+
+201
+00:09:32.030 --> 00:09:35.223
+and let's now get rid of one of these required fields.
+
+202
+00:09:36.440 --> 00:09:37.273
+All right.
+
+203
+00:09:37.273 --> 00:09:40.223
+And so that should trigger an error, and so let's see.
+
+204
+00:09:41.220 --> 00:09:44.920
+And indeed, our tour validation failed,
+
+205
+00:09:44.920 --> 00:09:46.910
+which is exactly the error message
+
+206
+00:09:46.910 --> 00:09:49.090
+that we were supposed to receive.
+
+207
+00:09:49.090 --> 00:09:53.220
+Now here, you see this 500 Internal Server Error,
+
+208
+00:09:53.220 --> 00:09:55.710
+which is simply due to the fact that right now
+
+209
+00:09:55.710 --> 00:09:57.500
+the error that was propagated
+
+210
+00:09:57.500 --> 00:09:59.280
+to the error handling middleware
+
+211
+00:09:59.280 --> 00:10:02.110
+did not have any status code specified
+
+212
+00:10:02.110 --> 00:10:05.190
+and so remember our default is 500
+
+213
+00:10:05.190 --> 00:10:08.310
+and so that's the one that was then sent back.
+
+214
+00:10:08.310 --> 00:10:10.060
+And of course, we need to fix that
+
+215
+00:10:10.060 --> 00:10:13.173
+and we will do that in a later lecture in this course.
+
+216
+00:10:14.730 --> 00:10:17.030
+For now, what matters here is that first,
+
+217
+00:10:17.030 --> 00:10:20.420
+our catchAsync function works just as intended,
+
+218
+00:10:20.420 --> 00:10:23.700
+and second, that the error was actually propagated,
+
+219
+00:10:23.700 --> 00:10:26.900
+so it was catched by our global error handling middleware
+
+220
+00:10:26.900 --> 00:10:30.223
+which then sent this response back to the client.
+
+221
+00:10:32.520 --> 00:10:35.360
+Now let's actually go ahead and export
+
+222
+00:10:35.360 --> 00:10:38.010
+this catch function into its own file.
+
+223
+00:10:38.010 --> 00:10:39.950
+So I'm grabbing it from here
+
+224
+00:10:39.950 --> 00:10:42.200
+and I will create just another file
+
+225
+00:10:42.200 --> 00:10:43.843
+into our utilities folder.
+
+226
+00:10:47.060 --> 00:10:51.123
+So catchAsync.js.
+
+227
+00:10:55.470 --> 00:11:00.470
+And to here, module.exports should be just this.
+
+228
+00:11:04.650 --> 00:11:09.450
+And so that should work just fine.
+
+229
+00:11:09.450 --> 00:11:11.340
+Back in our tour controller we of course
+
+230
+00:11:11.340 --> 00:11:13.373
+now need to import this function.
+
+231
+00:11:18.970 --> 00:11:21.840
+And as usual, we need to go up one folder
+
+232
+00:11:22.840 --> 00:11:25.690
+and then into our utilities folder
+
+233
+00:11:25.690 --> 00:11:27.733
+and then catchAsync.
+
+234
+00:11:30.810 --> 00:11:32.840
+All right, and now all we need to do
+
+235
+00:11:32.840 --> 00:11:36.080
+is to get rid of all these catch blocks
+
+236
+00:11:36.080 --> 00:11:40.593
+and wrap all the handlers into the catchAsync.
+
+237
+00:11:42.210 --> 00:11:43.793
+So let's do that.
+
+238
+00:11:47.610 --> 00:11:52.610
+First do the wrapping, and then getting rid of these blocks.
+
+239
+00:11:57.030 --> 00:12:00.220
+Give it a save to reformat, and here we go.
+
+240
+00:12:00.220 --> 00:12:03.310
+And now it's simply a process of repeating this
+
+241
+00:12:03.310 --> 00:12:06.821
+until all of the tours, or,
+
+242
+00:12:06.821 --> 00:12:09.633
+sorry, until all of the handlers are done.
+
+243
+00:12:13.070 --> 00:12:14.760
+Okay, quick save.
+
+244
+00:12:14.760 --> 00:12:16.740
+This one is already done.
+
+245
+00:12:16.740 --> 00:12:18.763
+Next up is update.
+
+246
+00:12:26.920 --> 00:12:28.483
+And only one more missing.
+
+247
+00:12:36.380 --> 00:12:37.870
+Or actually, that's not true.
+
+248
+00:12:37.870 --> 00:12:40.403
+Down there we have even more async functions.
+
+249
+00:12:52.530 --> 00:12:57.203
+So we'll get rid of the catch and the try here.
+
+250
+00:12:59.150 --> 00:13:01.100
+And I believe this one is the last one.
+
+251
+00:13:04.020 --> 00:13:05.483
+And yeah, indeed it is.
+
+252
+00:13:12.390 --> 00:13:15.000
+All right, now one other thing that we need to do
+
+253
+00:13:15.000 --> 00:13:19.040
+is actually add next to all of them here as well.
+
+254
+00:13:19.040 --> 00:13:20.793
+But of course, not in uppercase.
+
+255
+00:13:21.690 --> 00:13:22.960
+Okay.
+
+256
+00:13:22.960 --> 00:13:25.480
+And let me actually just select all of them here
+
+257
+00:13:28.170 --> 00:13:30.683
+so that I only have to write it once.
+
+258
+00:13:33.140 --> 00:13:35.943
+And so that added it to all of them.
+
+259
+00:13:38.390 --> 00:13:42.063
+And so now I guess we're done with this part.
+
+260
+00:13:43.270 --> 00:13:46.310
+Let's just very quickly test it again,
+
+261
+00:13:46.310 --> 00:13:48.733
+not with this one, but here with,
+
+262
+00:13:49.950 --> 00:13:52.000
+not with this one as well, so we're done.
+
+263
+00:13:55.330 --> 00:13:57.140
+And I'm gonna try to get a tour
+
+264
+00:13:57.140 --> 00:14:01.870
+but with an invalid ID, so let's see what happens here.
+
+265
+00:14:01.870 --> 00:14:04.250
+And indeed, we get our error message
+
+266
+00:14:04.250 --> 00:14:06.950
+and again with the 500 status code,
+
+267
+00:14:06.950 --> 00:14:08.640
+which is not correct, remember,
+
+268
+00:14:08.640 --> 00:14:10.050
+but we're gonna take care of that
+
+269
+00:14:10.050 --> 00:14:11.930
+at a later point in time.
+
+270
+00:14:11.930 --> 00:14:15.130
+So right now, let me show you
+
+271
+00:14:15.130 --> 00:14:19.920
+that this here is where the 500 comes from
+
+272
+00:14:19.920 --> 00:14:22.200
+because right now there's no status code
+
+273
+00:14:22.200 --> 00:14:24.310
+inside of the error that we get
+
+274
+00:14:24.310 --> 00:14:27.940
+because these errors, they actually come from Mongoose
+
+275
+00:14:27.940 --> 00:14:29.730
+and so we have no way of adding
+
+276
+00:14:29.730 --> 00:14:32.390
+a status code to these errors.
+
+277
+00:14:32.390 --> 00:14:35.370
+Or actually, of course, we could do it,
+
+278
+00:14:35.370 --> 00:14:37.950
+but that would just be even more confusing
+
+279
+00:14:37.950 --> 00:14:40.330
+and so we're gonna find another way
+
+280
+00:14:40.330 --> 00:14:41.443
+later in this section.
+
+281
+00:14:42.510 --> 00:14:45.840
+For now, I'm really happy with the result that we have here
+
+282
+00:14:45.840 --> 00:14:48.773
+and so that's it for this lecture.
+
