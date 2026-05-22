@@ -27,47 +27,8 @@ async function generateWithRetry(model, prompt, maxRetries = 3) {
       console.warn(
         `[API] Transient error detected (${error.message}). Retrying ${attempt}/${maxRetries} after delay...`,
       );
-      await delay(attempt * 2000);
+      await delay(attempt * 4000);
     }
-  }
-}
-
-async function extractNotesFromChunk(chunk, chunkIndex) {
-  const model = getAIClient().getGenerativeModel({ model: MODEL_NAME });
-  const prompt = `You are an expert Teaching Assistant. Review the following transcript chunk (Part ${chunkIndex + 1}).Extract the core educational concepts, definitions, and key arguments.Ignore filler words, conversational tangents, and introductory remarks.Return ONLY raw bullet points. Do not format as a final essay.Transcript Chunk:"${chunk}"`;
-  try {
-    return await generateWithRetry(model, prompt);
-  } catch (error) {
-    console.error(`Error extracting chunk ${chunkIndex + 1}:`, error.message);
-    return "";
-  }
-}
-
-async function synthesizeNotes(rawNotesArray) {
-  const model = getAIClient().getGenerativeModel({ model: MODEL_NAME });
-
-  const combinedNotes = rawNotesArray.join("\n\n");
-
-  const prompt = `
-    You are an expert Academic Architect. I am providing you with chronologically extracted notes from a lecture.
-    Your task is to synthesize these points into a single, cohesive, beautifully structured Markdown study guide.
-
-    Requirements:
-    1. Use a main title (# Title).
-    2. Group related concepts under logical H2 headings (## Heading).
-    3. Use bullet points for readability.
-    4. Include a distinct "## Key Terminology" section at the end defining technical words used.
-    5. Output ONLY valid Markdown. No conversational filler like "Here are your notes:".
-
-    Raw Notes:
-    ${combinedNotes}
-    `;
-
-  try {
-    return await generateWithRetry(model, prompt);
-  } catch (error) {
-    console.error("Error synthesizing final notes:", error.message);
-    throw new Error("Failed to generate final study guide.");
   }
 }
 
@@ -76,28 +37,36 @@ async function generateStudyGuide(chunks) {
     throw new Error("No transcript chunks provided.");
   }
 
-  console.log(`Starting AI extraction for ${chunks.length} chunks...`);
-  const rawNotesArray = [];
+  console.log("Sending entire transcript to Gemini for single-pass synthesis...");
 
-  for (let i = 0; i < chunks.length; i++) {
-    console.log(`Processing chunk ${i + 1}/${chunks.length}...`);
+  const model = getAIClient().getGenerativeModel({ model: MODEL_NAME });
 
-    const extracted = await extractNotesFromChunk(chunks[i], i);
-    if (extracted) {
-      rawNotesArray.push(extracted);
-    }
+  const combinedTranscript = chunks.join("\n\n");
 
-    if (i < chunks.length - 1) {
-      await delay(4000);
-    }
+  const prompt = `
+    You are an expert Academic Architect. I am providing you with a complete lecture transcript.
+    Your task is to extract the core educational concepts and synthesize them into a single, cohesive, beautifully structured Markdown study guide.
+
+    Requirements:
+    1. Use a main title (# Title).
+    2. Group related concepts under logical H2 headings (## Heading).
+    3. Use bullet points for readability.
+    4. Ignore filler words, conversational tangents, and introductory remarks.
+    5. Include a distinct "## Key Terminology" section at the end defining technical words used.
+    6. Output ONLY valid Markdown. No conversational filler like "Here are your notes:".
+
+    Transcript:
+    ${combinedTranscript}
+  `;
+
+  try {
+    const finalMarkdown = await generateWithRetry(model, prompt);
+    console.log("Synthesis complete!");
+    return finalMarkdown;
+  } catch (error) {
+    console.error("Error synthesizing final notes:", error.message);
+    throw new Error("Failed to generate final study guide.");
   }
-  if (rawNotesArray.length === 0) {
-    throw new Error("AI failed to extract any meaningful notes from the transcript.");
-  }
-  console.log("Extraction complete. Starting final synthesis...");
-
-  const finalMarkdown = await synthesizeNotes(rawNotesArray);
-  return finalMarkdown;
 }
 
 module.exports = { generateStudyGuide };
@@ -106,9 +75,6 @@ module.exports = { generateStudyGuide };
 if (require.main === module) {
   const path = require("path");
   require("dotenv").config({ path: path.resolve(__dirname, "../../config.env") });
-  console.log(
-    process.env.GEMINI_API_KEY ? "GEMINI_API_KEY is set via dotenv" : "GEMINI_API_KEY is NOT set",
-  );
 
   const mockChunks = [
     "Today we're starting our module on Big O Notation. It's really just a mathematical way to describe how the runtime of an algorithm scales as the input grows.",
