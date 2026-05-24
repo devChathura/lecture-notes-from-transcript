@@ -1,20 +1,22 @@
-import { useState, useEffect } from 'react';
-import './App.css';
+import FileUploader from "./components/FileUploader";
 
 function App() {
-  const [serverMessage, setServerMessage] = useState('Connecting to server...');
-
-  useEffect(() => {
-    fetch('/api/health')
-      .then((res) => res.json())
-      .then((data) => setServerMessage(data.message))
-      .catch((err) => setServerMessage('Failed to connect to server: ' + err.message));
-  }, []);
+  const handleFileSelect = (file) => {
+    console.log("Selected file:", file);
+  };
 
   return (
-    <div>
-      <h1>Lecture Notes App</h1>
-      <p>{serverMessage}</p>
+    <div className="min-h-screen p-8">
+      <div className="max-w-4xl mx-auto text-center mb-8">
+        <h1 className="text-3xl font-bold text-slate-900">
+          AI Lecture Companion
+        </h1>
+        <p className="text-slate-500 mt-2">
+          Upload your subtitles to generate a smart study guide.
+        </p>
+      </div>
+
+      <FileUploader onFileSelect={handleFileSelect} />
     </div>
   );
 }
