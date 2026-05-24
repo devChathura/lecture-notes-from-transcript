@@ -40,9 +40,9 @@ This tool streamlines the learning process by automating the cleanup and synthes
 - **Role-Based Prompt Engineering:** Enforces output reliability using a specific "Senior Academic Teaching Assistant" persona, helping produce consistently valid Markdown.
 - **Decoupled Architecture:** Clean client-server separation to protect sensitive LLM API keys.
 
-**Verified Engineering Metrics:**
+**Observed Engineering Metrics:**
 
-- **Transcript Parsing Coverage:** Backend parser and chunking tests currently cover the transcript-processing slice at roughly 94% line coverage.
+- **Transcript Parsing Coverage:** Backend parser and chunking tests currently cover the transcript-processing slice at roughly 94% line coverage in local test runs.
 - **Parsing Throughput:** In-memory regex parsing has been validated on 1,000-line SRT/VTT transcripts and runs in low-millisecond time on local benchmarks.
 - **AI Capacity:** Gemini 1.5 Flash orchestration is configured for single-pass synthesis over large chunked transcripts, with practical support for long-form lecture transcripts.
 
@@ -58,9 +58,7 @@ The system utilizes a lightweight **Client-Server Architecture**.
 
 ### C4 Container Diagram
 
-![Container Diagram](docs/diagrams/c4_container_diagram.svg)
-
-_(Additional architectural diagrams can be found in the `docs/diagrams/` directory)._
+Additional architectural diagrams can be found in the `docs/diagrams/` directory as Mermaid sources.
 
 ---
 
@@ -101,7 +99,7 @@ lecture-notes-from-transcript/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/lecture-notes-from-transcript.git
+git clone <your-fork-or-repo-url>
 cd lecture-notes-from-transcript
 ```
 
@@ -112,7 +110,14 @@ cd server
 npm install
 ```
 
-Create a `config.env` file in the `server` root directory:
+Copy the example environment file into place and add your Gemini key:
+
+```bash
+cd server
+copy config.env.example config.env
+```
+
+Then edit `server/config.env`:
 
 ```env
 PORT=3000
@@ -167,9 +172,7 @@ npm run build
 
 ## 📸 Screenshots & Demo
 
-_(Placeholder - Add your screenshots here once UI is complete)_
-
-![App Dashboard Screenshot](docs/screenshots/app-dashboard.png)
+Screenshots will be added once the frontend is connected to the backend upload flow.
 
 ---
 
