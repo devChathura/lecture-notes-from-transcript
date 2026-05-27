@@ -34,9 +34,28 @@ A deep dive into the internal logic of the Node.js server.
 
 ## 4. API Design (Contracts)
 
-<!-- todo -->
+**Endpoint:** `POST /api/upload`
 
-//Not yet decided
+- **Description:** Receives the uploaded subtitle file, processes it, and returns the generated structured study notes.
+- **Request Format:** `multipart/form-data`
+  - `file`: The `.srt` or `.vtt` file to be parsed.
+- **Response Format (JSON):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "notes": "# Main Topic\n\n..."
+    }
+  }
+  ```
+- **Error Response (JSON):**
+  ```json
+  {
+    "success": false,
+    "error": "Invalid file format."
+  }
+  ```
+- **Validation Contracts:** Handled consistently on both the Client and Server utilizing the **Zod** library.
 
 ## 5. Core Intelligence Strategies
 
@@ -80,10 +99,11 @@ We utilize a "System Persona" to enforce output reliability.
 
 **AI Integration & Utilities**
 
-<!-- todo -->
-
-- **Tokenization Library:**
-- **express-rate-limit:**
+- **Language Model API:** `@google/generative-ai` (Gemini API) will be utilized for generating the structured summaries.
+- **Text Chunking Engine:** `@langchain/textsplitters` for robust, overlap-aware text splitting instead of manual regex segmenting.
+- **Schema Validation:** `zod` installed to rigorously enforce API contracts across both client and server boundaries.
+- **Tokenization Library:** `js-tiktoken` for accurate length measurement and context window management before passing chunks to the LLM.
+- **Rate Limiting:** `express-rate-limit` (Planned) to prevent API abuse once the server is exposed.
 
 ## 8. Folder Strcuture
 
