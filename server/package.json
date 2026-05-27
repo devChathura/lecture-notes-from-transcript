@@ -1,0 +1,33 @@
+{
+  "name": "lecture-companion-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "test": "node --test tests/**/*.test.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "ai",
+    "notes",
+    "srt",
+    "express",
+    "lecture"
+  ],
+  "author": "Chathura Hapukotuwa",
+  "license": "ISC",
+  "description": "Backend API for AI powered lecture note generation from subtitle files.",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@langchain/textsplitters": "^1.0.1",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "multer": "^2.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
