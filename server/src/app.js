@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const generateRoutes = require("./routes/generateRoutes");
 
 const app = express();
@@ -6,6 +7,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 // Health check route
 app.get("/api/health", (req, res) => {
@@ -27,4 +29,3 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
-

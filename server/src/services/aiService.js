@@ -11,7 +11,7 @@ function getAIClient() {
   return genAI;
 }
 
-const MODEL_NAME = "gemini-1.5-flash";
+const MODEL_NAME = "gemini-2.5-flash";
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function generateWithRetry(model, prompt, maxRetries = 3) {
