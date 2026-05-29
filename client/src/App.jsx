@@ -2,6 +2,32 @@ import { useState } from "react";
 import FileUploader from "./components/FileUploader";
 import { generateStudyGuide } from "./services/apiService";
 import { Loader2, AlertCircle } from "lucide-react";
+import MarkdownViewer from "./components/MarkdownViewer";
+
+const DUMMY_MARKDOWN = `
+# Big O Notation: A Study Guide
+
+## Introduction to Time Complexity
+Big O notation is a mathematical notation that describes the limiting behavior of a function when the argument tends towards a particular value or infinity. 
+
+In computer science, it is used to classify algorithms according to how their run time or space requirements grow as the input size grows.
+
+### Common Complexities
+Here is a breakdown of the most common time complexities you will encounter:
+
+* **O(1) Constant Time:** The algorithm takes the same amount of time regardless of input size.
+* **O(n) Linear Time:** The algorithm's performance grows linearly with the input size.
+* **O(n^2) Quadratic Time:** Usually the result of nested loops.
+
+## Key Takeaways
+> "Premature optimization is the root of all evil in programming." 
+> — Donald Knuth
+
+### Essential Terminology
+1. **Algorithm:** A set of instructions designed to perform a specific task.
+2. **Data Structure:** A specialized format for organizing and storing data.
+3. **Worst-case Scenario:** The maximum maximum amount of time an algorithm could possibly take.
+`;
 
 function App() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -69,23 +95,17 @@ function App() {
         </div>
       )}
 
-      {}
       {markdownNotes && !isProcessing && (
-        <div className="mt-12 max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-          <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-            <h2 className="text-xl font-bold text-slate-800">
-              Generated Study Guide
-            </h2>
+        <div className="mt-8">
+          <div className="max-w-4xl mx-auto flex justify-end px-2">
             <button
               onClick={() => setMarkdownNotes(null)}
-              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+              className="text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-all"
             >
-              Upload Another File
+              ← Upload a different lecture
             </button>
           </div>
-          <pre className="whitespace-pre-wrap text-sm text-slate-700 font-mono bg-slate-50 p-6 rounded-lg overflow-x-auto">
-            {markdownNotes}
-          </pre>
+          <MarkdownViewer markdown={markdownNotes} />
         </div>
       )}
     </div>
