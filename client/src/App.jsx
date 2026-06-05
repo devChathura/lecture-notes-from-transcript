@@ -1,8 +1,11 @@
 import { useState } from "react";
+import Navbar from "./components/Navbar";
+import Hero from "./components/Hero";
 import FileUploader from "./components/FileUploader";
 import { generateStudyGuide } from "./services/apiService";
 import { Loader2, AlertCircle } from "lucide-react";
 import MarkdownViewer from "./components/MarkdownViewer";
+import AuroraBackground from "./components/AuroraBackground";
 
 const DUMMY_MARKDOWN = `
 # Big O Notation: A Study Guide
@@ -59,8 +62,11 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-4xl mx-auto text-center mb-12 mt-8">
+    <AuroraBackground>
+      <div className="min-h-screen p-8">
+        <Navbar />
+        <Hero />
+        {/* <div className="max-w-4xl mx-auto text-center mb-12 mt-8">
         <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
           AI Lecture Companion
         </h1>
@@ -68,13 +74,13 @@ function App() {
           Upload your subtitles to generate a beautifully structured study
           guide.
         </p>
-      </div>
+      </div> */}
 
-      {!markdownNotes && (
+      {/* {!markdownNotes && (
         <div className="max-w-3xl mx-auto">
           <FileUploader onFileSelect={handleFileSelect} />
         </div>
-      )}
+      )} */}
 
       {isProcessing && (
         <div className="mt-12 flex flex-col items-center justify-center text-blue-600 space-y-4 animate-pulse">
@@ -108,7 +114,8 @@ function App() {
           <MarkdownViewer markdown={markdownNotes} />
         </div>
       )}
-    </div>
+      </div>
+    </AuroraBackground>
   );
 }
 

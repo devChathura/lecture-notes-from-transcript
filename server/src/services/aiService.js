@@ -24,10 +24,14 @@ async function generateWithRetry(model, prompt, maxRetries = 3) {
       if (!isTransient || attempt === maxRetries) {
         throw error;
       }
+      const baseDelay = Math.pow(2, attempt) * 1000;
+      const jitter = Math.random() * 1000;
+      const totalDelay = baseDelay + jitter;
+
       console.warn(
-        `[API] Transient error detected (${error.message}). Retrying ${attempt}/${maxRetries} after delay...`,
+        `[API] Rate limit/Server error (${error.message}). Retrying ${attempt}/${maxRetries} in ${totalDelay.toFixed(0)}ms...`,
       );
-      await delay(attempt * 4000);
+      await delay(totalDelay);
     }
   }
 }
