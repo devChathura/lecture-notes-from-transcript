@@ -5,6 +5,7 @@ import FileUploader from "./components/FileUploader";
 import { generateStudyGuide } from "./services/apiService";
 import { Loader2, AlertCircle } from "lucide-react";
 import MarkdownViewer from "./components/MarkdownViewer";
+import AuroraBackground from "./components/AuroraBackground";
 
 const DUMMY_MARKDOWN = `
 # Big O Notation: A Study Guide
@@ -61,10 +62,11 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen p-8">
-      <Navbar />
-      <Hero />
-      {/* <div className="max-w-4xl mx-auto text-center mb-12 mt-8">
+    <AuroraBackground>
+      <div className="min-h-screen p-8">
+        <Navbar />
+        <Hero />
+        {/* <div className="max-w-4xl mx-auto text-center mb-12 mt-8">
         <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
           AI Lecture Companion
         </h1>
@@ -112,7 +114,8 @@ function App() {
           <MarkdownViewer markdown={markdownNotes} />
         </div>
       )}
-    </div>
+      </div>
+    </AuroraBackground>
   );
 }
 
