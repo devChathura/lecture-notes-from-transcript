@@ -16,8 +16,8 @@ export const generateStudyGuide = async (file) => {
     return response.data;
   } catch (error) {
     if (error.response && error.response.data && error.response.data.message) {
-      throw new Error(error.response.data.message);
+      throw new Error(error.response.data.message, { cause: error });
     }
-    throw new Error(error.message || "Network Error");
+    throw new Error(error.message || "Network Error", { cause: error });
   }
 };

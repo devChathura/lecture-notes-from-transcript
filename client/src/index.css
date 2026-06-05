@@ -2,6 +2,8 @@
 
 @theme {
 	--animate-aurora: aurora 60s linear infinite;
+	--animate-preview-enter: preview-enter 380ms ease-out both;
+	--animate-processing-line: processing-line 1450ms ease-in-out infinite;
 }
 
 @keyframes aurora {
@@ -11,6 +13,32 @@
 
 	to {
 		background-position: 350% 50%, 350% 50%;
+	}
+}
+
+@keyframes preview-enter {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes processing-line {
+	0% {
+		transform: translateX(-18%);
+	}
+
+	50% {
+		transform: translateX(8%);
+	}
+
+	100% {
+		transform: translateX(-18%);
 	}
 }
 

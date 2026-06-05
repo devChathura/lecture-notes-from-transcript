@@ -1,49 +1,48 @@
-import React from 'react';
+import { BookOpen, ExternalLink } from "lucide-react";
+
+const navLinks = [
+  { label: "Features", href: "#features" },
+  { label: "How it works", href: "#how-it-works" },
+];
 
 const Navbar = () => {
   return (
-    <div className="fixed top-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
-      <nav className="pointer-events-auto flex items-center justify-between bg-[#EDEDED]/72 backdrop-blur-md rounded-full px-6 py-2 mx-4 w-full max-w-3xl shadow-sm border border-[#EDEDED]/50">
-        {/* Left Side (Logo) */}
-        <div className="flex items-center gap-2">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#141414"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-          </svg>
-          <span className="font-sans font-bold text-[#141414] text-[16px] tracking-tight">
+    <div className="pointer-events-none fixed left-0 right-0 top-4 z-50 flex justify-center px-3 sm:top-6 sm:px-4">
+      <nav className="pointer-events-auto flex w-full max-w-3xl items-center justify-between rounded-full border border-white/55 bg-white/65 px-3 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:px-4">
+        <a
+          href="#"
+          className="flex min-w-0 items-center gap-2 rounded-full pr-2 text-slate-950 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white/70"
+          aria-label="Lecture Companion home"
+        >
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200/70 bg-white/75 text-slate-900 shadow-sm">
+            <BookOpen className="h-4 w-4" />
+          </span>
+          <span className="truncate font-sans text-sm font-bold tracking-tight sm:text-[15px]">
             Lecture Companion
           </span>
-        </div>
+        </a>
 
-        {/* Right Side (Links) */}
         <div className="flex items-center gap-1">
-          <a
-            href="#features"
-            className="font-sans text-[16px] text-[#141414] px-4 py-2 rounded-full transition-all duration-200 hover:bg-[#EDEDED]"
-          >
-            Features
-          </a>
-          <a
-            href="#how-it-works"
-            className="font-sans text-[16px] text-[#141414] px-4 py-2 rounded-full transition-all duration-200 hover:bg-[#EDEDED]"
-          >
-            How it works
-          </a>
+          <div className="hidden items-center gap-1 sm:flex">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="rounded-full px-3 py-2 font-sans text-sm font-semibold text-slate-600 transition-all duration-200 hover:bg-white/70 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white/70 md:px-4"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+
           <a
             href="https://github.com/devChathura"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-sans text-[16px] text-[#141414] px-4 py-2 rounded-full transition-all duration-200 hover:bg-[#EDEDED]"
+            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200/70 bg-white/55 px-3 py-2 font-sans text-sm font-semibold text-slate-700 transition-all duration-200 hover:border-slate-300 hover:bg-white/80 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white/70 sm:px-4"
           >
             GitHub
+            <ExternalLink className="h-3.5 w-3.5" />
           </a>
         </div>
       </nav>
