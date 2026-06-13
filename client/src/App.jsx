@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import Features from "./components/Features";
 import HowItWorks from "./components/HowItWorks";
+import EngineeringHighlights from "./components/EngineeringHighlights";
 import FileUploader from "./components/FileUploader";
 import { generateStudyGuide } from "./services/apiService";
 import { Loader2, AlertCircle } from "lucide-react";
@@ -44,6 +45,7 @@ function App() {
         <Hero />
         <Features />
         <HowItWorks />
+        <EngineeringHighlights />
 
         {!markdownNotes && !isProcessing && (
           <div id="upload" className="max-w-3xl mx-auto scroll-mt-28">

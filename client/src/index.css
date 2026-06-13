@@ -243,6 +243,65 @@ html {
 	transform: translate3d(0, 0, 0);
 }
 
+.engineering-section::before {
+	content: "";
+	position: absolute;
+	inset: 1.5rem 0;
+	z-index: -1;
+	pointer-events: none;
+	opacity: 0.18;
+	background-image:
+		linear-gradient(rgb(148 163 184 / 0.18) 1px, transparent 1px),
+		linear-gradient(90deg, rgb(148 163 184 / 0.18) 1px, transparent 1px);
+	background-size: 32px 32px;
+	-webkit-mask-image: linear-gradient(to bottom, transparent, black 18%, black 82%, transparent);
+	mask-image: linear-gradient(to bottom, transparent, black 18%, black 82%, transparent);
+}
+
+.engineering-header-reveal {
+	opacity: 0;
+	transform: translate3d(0, 18px, 0);
+	transition:
+		opacity 650ms cubic-bezier(0.22, 1, 0.36, 1),
+		transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.engineering-header-reveal.is-visible {
+	opacity: 1;
+	transform: translate3d(0, 0, 0);
+}
+
+.engineering-card-reveal {
+	opacity: 0;
+	transform: translate3d(0, 20px, 0) scale(0.99);
+	transition:
+		opacity 560ms cubic-bezier(0.22, 1, 0.36, 1) var(--engineering-delay, 0ms),
+		transform 560ms cubic-bezier(0.22, 1, 0.36, 1) var(--engineering-delay, 0ms);
+}
+
+.engineering-card-reveal.is-visible {
+	opacity: 1;
+	transform: translate3d(0, 0, 0) scale(1);
+}
+
+.engineering-highlight-card {
+	box-shadow: 0 8px 24px rgb(15 23 42 / 0.03);
+	transition:
+		transform 200ms ease-out,
+		border-color 200ms ease-out,
+		background-color 200ms ease-out,
+		box-shadow 200ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.engineering-highlight-card:hover {
+		transform: translate3d(0, -2px, 0);
+		border-color: rgb(203 213 225 / 0.9);
+		background-color: rgb(255 255 255 / 0.66);
+		box-shadow: 0 14px 32px rgb(15 23 42 / 0.06);
+	}
+}
+
 .hero-ambient::before,
 .hero-ambient::after {
 	content: "";
@@ -290,10 +349,14 @@ html {
 	.how-it-works-step-reveal,
 	.how-it-works-line-reveal,
 	.how-it-works-summary-reveal,
+	.engineering-header-reveal,
+	.engineering-card-reveal,
 	.how-it-works-header-reveal.is-visible,
 	.how-it-works-step-reveal.is-visible,
 	.how-it-works-line-reveal.is-visible,
-	.how-it-works-summary-reveal.is-visible {
+	.how-it-works-summary-reveal.is-visible,
+	.engineering-header-reveal.is-visible,
+	.engineering-card-reveal.is-visible {
 		opacity: 1;
 		transform: none;
 		transition: none;
@@ -302,7 +365,9 @@ html {
 	.feature-card-surface,
 	.feature-card-surface:hover,
 	.how-it-works-card,
-	.how-it-works-card:hover {
+	.how-it-works-card:hover,
+	.engineering-highlight-card,
+	.engineering-highlight-card:hover {
 		transform: none;
 		transition: none;
 	}
