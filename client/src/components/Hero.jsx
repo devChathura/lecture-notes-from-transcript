@@ -28,30 +28,30 @@ const processItems = [
   "Notes structured",
 ];
 
-const stepDurations = [800, 1200, 1800, 0];
-const inactivityDelay = 3800;
+const stepDurations = [2200, 2200, 3000, 0];
+const inactivityDelay = 6000;
 const confettiCooldown = 1200;
 
 const Hero = () => {
   return (
-    <section className="w-full max-w-[1240px] mx-auto px-4 sm:px-6 pt-[96px] pb-12 lg:flex lg:min-h-[calc(100vh-4rem)] lg:items-center lg:pt-20 lg:pb-8">
-      <div className="grid w-full items-center gap-8 lg:grid-cols-[0.96fr_1.04fr] lg:gap-10">
+    <section className="hero-ambient relative isolate mx-auto w-full max-w-[1240px] overflow-hidden px-4 pb-12 pt-[96px] sm:px-6 lg:flex lg:min-h-[calc(100vh-4rem)] lg:items-center lg:pb-8 lg:pt-20">
+      <div className="relative z-10 grid w-full items-center gap-8 lg:grid-cols-[0.96fr_1.04fr] lg:gap-10">
         <div className="flex flex-col items-start">
-          <h1 className="max-w-3xl text-left font-sans text-[40px] font-[680] leading-[1.05] tracking-tight text-[#141414] sm:text-[52px] lg:text-[58px]">
+          <h1 className="max-w-3xl animate-hero-headline text-left font-sans text-[40px] font-[680] leading-[1.05] tracking-tight text-[#141414] motion-reduce:animate-none sm:text-[52px] lg:text-[58px]">
             From Messy Lecture Subtitles to Clean Study Notes.
           </h1>
 
-          <p className="mt-5 max-w-2xl text-left text-[16px] font-[440] leading-[1.65] text-[#5f6368] sm:text-[17px]">
+          <p className="mt-5 max-w-2xl animate-hero-subtitle text-left text-[16px] font-[440] leading-[1.65] text-[#5f6368] motion-reduce:animate-none sm:text-[17px]">
             Built for students who do not want to pause lectures 100 times just
             to take notes. Upload a .srt or .vtt transcript and Lecture
             Companion cleans, chunks, and converts it into structured Markdown
             study notes using AI.
           </p>
 
-          <div className="mt-7 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          <div className="mt-7 flex w-full animate-hero-actions flex-col gap-3 motion-reduce:animate-none sm:w-auto sm:flex-row">
             <a
               href="#upload"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#141414] px-6 py-3.5 text-[15px] font-semibold text-white shadow-lg shadow-slate-950/15 transition-all duration-200 hover:bg-black hover:shadow-xl hover:shadow-slate-950/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#141414] px-6 py-3.5 text-[15px] font-semibold text-white shadow-lg shadow-slate-950/15 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-black hover:shadow-xl hover:shadow-slate-950/20 active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 motion-reduce:transform-none"
             >
               Try Lecture Companion
               <ArrowRight className="h-4 w-4" />
@@ -60,14 +60,14 @@ const Hero = () => {
               href="https://github.com/devChathura"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-300/80 bg-white/55 px-6 py-3.5 text-[15px] font-semibold text-[#141414] shadow-sm backdrop-blur-md transition-all duration-200 hover:border-slate-400 hover:bg-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-300/80 bg-white/55 px-6 py-3.5 text-[15px] font-semibold text-[#141414] shadow-sm backdrop-blur-md transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-slate-400 hover:bg-white/80 hover:shadow-md active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 motion-reduce:transform-none"
             >
               <ExternalLink className="h-4 w-4" />
               View GitHub
             </a>
           </div>
 
-          <p className="mt-5 max-w-xl text-left text-sm font-medium leading-6 text-slate-500">
+          <p className="mt-5 max-w-xl animate-hero-support text-left text-sm font-medium leading-6 text-slate-500 motion-reduce:animate-none">
             Built by a Software Engineering undergraduate to solve my own
             lecture revision workflow.
           </p>
@@ -137,6 +137,10 @@ const WorkflowDemoCard = () => {
       return undefined;
     }
 
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return undefined;
+    }
+
     const now = Date.now();
 
     if (now - lastConfettiAtRef.current < confettiCooldown) {
@@ -158,13 +162,13 @@ const WorkflowDemoCard = () => {
     const fire = (originX, delay) => {
       const timer = window.setTimeout(() => {
         confettiInstanceRef.current({
-          particleCount: 36,
-          spread: 66,
-          startVelocity: 24,
-          scalar: 0.78,
-          gravity: 0.9,
-          ticks: 175,
-          origin: { x: originX, y: 0.08 },
+          particleCount: 24,
+          spread: 62,
+          startVelocity: 20,
+          scalar: 0.72,
+          gravity: 0.95,
+          ticks: 90,
+          origin: { x: originX, y: 0.06 },
           colors: ["#0f172a", "#334155", "#60a5fa", "#93c5fd", "#cbd5e1"],
           disableForReducedMotion: true,
         });
@@ -174,10 +178,9 @@ const WorkflowDemoCard = () => {
     };
 
     fire(0.3, 0);
-    fire(0.5, 220);
-    fire(0.7, 440);
-    fire(0.42, 660);
-    fire(0.62, 880);
+    fire(0.5, 180);
+    fire(0.7, 360);
+    fire(0.5, 540);
 
     return () => {
       confettiTimersRef.current.forEach((timer) => window.clearTimeout(timer));
@@ -204,7 +207,7 @@ const WorkflowDemoCard = () => {
   };
 
   return (
-    <div className="relative w-full lg:ml-auto lg:max-w-[570px]">
+    <div className="relative w-full animate-workflow-card-enter motion-reduce:animate-none lg:ml-auto lg:max-w-[570px]">
       <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-blue-200/35 via-white/10 to-slate-200/45 blur-2xl" />
       <div className="relative overflow-hidden rounded-[1.75rem] border border-white/75 bg-white/76 shadow-2xl shadow-slate-950/10 backdrop-blur-xl">
         <canvas
@@ -254,7 +257,7 @@ const HorizontalProgressStepper = ({ activeStep, onStepClick }) => {
       <div className="relative mx-auto max-w-sm">
         <div className="absolute left-5 right-5 top-3.5 h-0.5 rounded-full bg-slate-200" />
         <div
-          className="absolute left-5 top-3.5 h-0.5 rounded-full bg-slate-950 transition-all duration-500 ease-out"
+          className="absolute left-5 top-3.5 h-0.5 rounded-full bg-slate-950 transition-all duration-500 ease-out motion-reduce:transition-none"
           style={{ width: progressWidth }}
         />
 
@@ -264,11 +267,11 @@ const HorizontalProgressStepper = ({ activeStep, onStepClick }) => {
               key={step.label}
               type="button"
               onClick={() => onStepClick(index)}
-              className="group flex cursor-pointer flex-col items-center gap-1.5 rounded-xl px-1.5 py-1 text-center transition-all duration-200 hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white/70"
+              className="group flex cursor-pointer flex-col items-center gap-1.5 rounded-xl px-1.5 py-1 text-center transition-all duration-200 hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white/70 motion-reduce:transition-none"
               aria-label={step.ariaLabel}
             >
               <span
-                className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold shadow-sm transition-all duration-200 group-hover:scale-105 group-hover:shadow-md ${
+                className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold shadow-sm transition-all duration-200 group-hover:scale-105 group-hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none ${
                   activeStep === index
                     ? "scale-105 border-slate-950 bg-slate-950 text-white"
                     : activeStep > index
@@ -283,7 +286,7 @@ const HorizontalProgressStepper = ({ activeStep, onStepClick }) => {
                 )}
               </span>
               <span
-                className={`text-xs transition-colors duration-200 ${
+                className={`text-xs transition-colors duration-200 motion-reduce:transition-none ${
                   activeStep === index
                     ? "font-bold text-slate-950"
                     : activeStep > index
@@ -306,7 +309,7 @@ const PreviewPanel = ({ activeStep }) => {
     <div className="bg-slate-50/45 p-3.5 sm:p-4">
       <div
         key={activeStep}
-        className="min-h-[292px] rounded-[1.35rem] bg-white/70 p-4 animate-preview-enter lg:min-h-[318px]"
+        className="min-h-[292px] animate-preview-enter rounded-[1.35rem] bg-white/70 p-4 motion-reduce:animate-none lg:min-h-[318px]"
       >
         {activeStep === 0 && <RawSubtitlePreview />}
         {activeStep === 1 && <CleanTranscriptPreview />}
@@ -322,41 +325,59 @@ const RawSubtitlePreview = () => {
     <div>
       <div className="flex items-start justify-between gap-3">
         <PreviewHeader eyebrow="Raw subtitles" title="Messy lecture input" />
-        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200">
+        <span
+          className="preview-reveal rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200"
+          style={{ "--preview-delay": "40ms" }}
+        >
           .vtt
         </span>
       </div>
 
       <div className="mt-3 rounded-xl bg-slate-50/80 px-3.5 py-3 font-mono text-[11px] leading-5 text-slate-500 ring-1 ring-slate-200/50">
-        <p className="text-slate-400">1</p>
-        <p>
-          <span className="rounded bg-blue-50 px-1 py-0.5 text-blue-700">
-            00:00:01,240 --&gt; 00:00:04,000
-          </span>
-        </p>
-        <p className="text-slate-700">
-          Today we are going to discuss authentication...
-        </p>
+        <div
+          className="preview-reveal"
+          style={{ "--preview-delay": "70ms" }}
+        >
+          <p className="text-slate-400">1</p>
+          <p>
+            <span className="rounded bg-blue-50 px-1 py-0.5 text-blue-700">
+              00:00:01,240 --&gt; 00:00:04,000
+            </span>
+          </p>
+          <p className="text-slate-700">
+            Today we are going to discuss authentication...
+          </p>
+        </div>
 
-        <p className="mt-2.5 text-slate-400">2</p>
-        <p>
-          <span className="rounded bg-blue-50 px-1 py-0.5 text-blue-700">
-            00:00:04,150 --&gt; 00:00:07,000
-          </span>
-        </p>
-        <p className="text-slate-700">
-          Authentication is the process of verifying identity...
-        </p>
+        <div
+          className="preview-reveal mt-2.5"
+          style={{ "--preview-delay": "130ms" }}
+        >
+          <p className="text-slate-400">2</p>
+          <p>
+            <span className="rounded bg-blue-50 px-1 py-0.5 text-blue-700">
+              00:00:04,150 --&gt; 00:00:07,000
+            </span>
+          </p>
+          <p className="text-slate-700">
+            Authentication is the process of verifying identity...
+          </p>
+        </div>
 
-        <p className="mt-2.5 text-slate-400">3</p>
-        <p>
-          <span className="rounded bg-blue-50 px-1 py-0.5 text-blue-700">
-            00:00:07,200 --&gt; 00:00:10,500
-          </span>
-        </p>
-        <p className="text-slate-700">
-          Authorization controls what a user can access...
-        </p>
+        <div
+          className="preview-reveal mt-2.5"
+          style={{ "--preview-delay": "190ms" }}
+        >
+          <p className="text-slate-400">3</p>
+          <p>
+            <span className="rounded bg-blue-50 px-1 py-0.5 text-blue-700">
+              00:00:07,200 --&gt; 00:00:10,500
+            </span>
+          </p>
+          <p className="text-slate-700">
+            Authorization controls what a user can access...
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -370,15 +391,33 @@ const CleanTranscriptPreview = () => {
           eyebrow="Clean transcript"
           title="Readable lecture text"
         />
-        <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 ring-1 ring-emerald-100">
+        <span
+          className="preview-reveal rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 ring-1 ring-emerald-100"
+          style={{ "--preview-delay": "40ms" }}
+        >
           timestamps removed
         </span>
       </div>
 
       <div className="mt-4 space-y-3 rounded-xl bg-slate-50/55 px-4 py-4 text-sm leading-6 text-slate-700 ring-1 ring-slate-200/45">
-        <p>Today we are going to discuss authentication.</p>
-        <p>Authentication is the process of verifying identity.</p>
-        <p>Authorization controls what a user can access.</p>
+        <p
+          className="preview-reveal"
+          style={{ "--preview-delay": "80ms" }}
+        >
+          Today we are going to discuss authentication.
+        </p>
+        <p
+          className="preview-reveal"
+          style={{ "--preview-delay": "140ms" }}
+        >
+          Authentication is the process of verifying identity.
+        </p>
+        <p
+          className="preview-reveal"
+          style={{ "--preview-delay": "200ms" }}
+        >
+          Authorization controls what a user can access.
+        </p>
       </div>
     </div>
   );
@@ -389,24 +428,26 @@ const AIProcessingPreview = () => {
   const isProcessingComplete = processingProgress === 100;
 
   useEffect(() => {
-    let frameId;
-    const start = performance.now();
-    const duration = Math.max(1200, stepDurations[2] - 40);
+    const duration = Math.max(1200, stepDurations[2] - 250);
+    const updateInterval = 50;
+    const totalTicks = Math.ceil(duration / updateInterval);
+    let currentTick = 0;
 
-    const animate = (now) => {
-      const elapsed = now - start;
-      const nextProgress = Math.min((elapsed / duration) * 100, 100);
+    const intervalId = window.setInterval(() => {
+      currentTick += 1;
+      const nextProgress = Math.min(
+        Math.round((currentTick / totalTicks) * 100),
+        100
+      );
 
-      setProcessingProgress(Math.round(nextProgress));
+      setProcessingProgress(nextProgress);
 
-      if (nextProgress < 100) {
-        frameId = window.requestAnimationFrame(animate);
+      if (nextProgress === 100) {
+        window.clearInterval(intervalId);
       }
-    };
+    }, updateInterval);
 
-    frameId = window.requestAnimationFrame(animate);
-
-    return () => window.cancelAnimationFrame(frameId);
+    return () => window.clearInterval(intervalId);
   }, []);
 
   return (
@@ -418,7 +459,7 @@ const AIProcessingPreview = () => {
           <div className="flex items-center gap-3">
             <span className="relative flex h-3 w-3">
               {!isProcessingComplete && (
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-40" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-40 motion-reduce:animate-none" />
               )}
               <span
                 className={`relative inline-flex h-3 w-3 rounded-full ${
@@ -437,9 +478,16 @@ const AIProcessingPreview = () => {
           </span>
         </div>
 
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
+        <div
+          className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100"
+          role="progressbar"
+          aria-label="AI note generation progress"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow={processingProgress}
+        >
           <div
-            className="h-full rounded-full bg-slate-950 transition-[width] duration-150 ease-out"
+            className="h-full rounded-full bg-slate-950 transition-[width] duration-150 ease-out motion-reduce:transition-none"
             style={{ width: `${processingProgress}%` }}
           />
         </div>
@@ -453,12 +501,14 @@ const AIProcessingPreview = () => {
           return (
           <div key={item} className="flex items-center gap-3 px-1 py-1.5">
             <CheckCircle2
-              className={`h-4 w-4 shrink-0 transition-colors ${
-                isComplete ? "text-emerald-600" : "text-slate-300"
+              className={`h-4 w-4 shrink-0 transition-colors duration-200 motion-reduce:transition-none ${
+                isComplete
+                  ? "checklist-complete text-emerald-600"
+                  : "text-slate-300"
               }`}
             />
             <span
-              className={`text-sm font-semibold transition-colors ${
+              className={`text-sm font-semibold transition-colors duration-200 motion-reduce:transition-none ${
                 isComplete ? "text-slate-700" : "text-slate-400"
               }`}
             >
@@ -476,21 +526,29 @@ const StudyNotesPreview = () => {
   return (
     <div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <PreviewHeader
-          eyebrow="Study notes ready"
-          title="Lecture 05: Authentication"
-        />
-        <div className="flex gap-2">
+        <div
+          className="preview-reveal"
+          style={{ "--preview-delay": "30ms" }}
+        >
+          <PreviewHeader
+            eyebrow="Study notes ready"
+            title="Lecture 05: Authentication"
+          />
+        </div>
+        <div
+          className="preview-reveal flex gap-2"
+          style={{ "--preview-delay": "230ms" }}
+        >
           <button
             type="button"
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 motion-reduce:transform-none"
           >
             <Copy className="h-3.5 w-3.5" />
             Copy Notes
           </button>
           <button
             type="button"
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-black hover:shadow-md active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 motion-reduce:transform-none"
           >
             <Download className="h-3.5 w-3.5" />
             Download .md
@@ -499,7 +557,10 @@ const StudyNotesPreview = () => {
       </div>
 
       <div className="mt-3 px-1 py-1">
-        <section>
+        <section
+          className="preview-reveal"
+          style={{ "--preview-delay": "90ms" }}
+        >
           <h4 className="text-sm font-bold text-slate-950">Key Ideas</h4>
           <ul className="mt-2 space-y-1 text-sm leading-6 text-slate-700">
             <li>Authentication verifies identity.</li>
@@ -508,7 +569,10 @@ const StudyNotesPreview = () => {
           </ul>
         </section>
 
-        <section className="mt-3 border-t border-slate-200/60 pt-3">
+        <section
+          className="preview-reveal mt-3 border-t border-slate-200/60 pt-3"
+          style={{ "--preview-delay": "160ms" }}
+        >
           <h4 className="text-sm font-bold text-slate-950">Key Terms</h4>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             <TermDefinition

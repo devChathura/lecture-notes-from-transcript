@@ -31,6 +31,7 @@ const AuroraBackground = ({
             after:dark:[background-image:var(--dark-gradient),var(--aurora)]
             after:[background-size:200%,_100%]
             after:animate-aurora after:[background-attachment:fixed] after:mix-blend-difference
+            motion-reduce:after:animate-none
             absolute -inset-[10px] opacity-50 will-change-transform
             `,
             showRadialGradient &&

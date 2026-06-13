@@ -2,8 +2,13 @@
 
 @theme {
 	--animate-aurora: aurora 60s linear infinite;
+	--animate-navbar-enter: navbar-enter 600ms cubic-bezier(0.22, 1, 0.36, 1) 100ms both;
+	--animate-hero-headline: hero-content-enter 650ms cubic-bezier(0.22, 1, 0.36, 1) 180ms both;
+	--animate-hero-subtitle: hero-content-enter 650ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
+	--animate-hero-actions: hero-content-enter 650ms cubic-bezier(0.22, 1, 0.36, 1) 420ms both;
+	--animate-hero-support: hero-content-enter 650ms cubic-bezier(0.22, 1, 0.36, 1) 540ms both;
+	--animate-workflow-card-enter: workflow-card-enter 720ms cubic-bezier(0.22, 1, 0.36, 1) 340ms both;
 	--animate-preview-enter: preview-enter 380ms ease-out both;
-	--animate-processing-line: processing-line 1450ms ease-in-out infinite;
 }
 
 @keyframes aurora {
@@ -28,17 +33,139 @@
 	}
 }
 
-@keyframes processing-line {
-	0% {
-		transform: translateX(-18%);
+@keyframes preview-detail-enter {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes checklist-complete {
+	from {
+		opacity: 0.45;
+		transform: scale(0.82);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes navbar-enter {
+	from {
+		opacity: 0;
+		transform: translateY(-12px) scale(0.98);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes hero-content-enter {
+	from {
+		opacity: 0;
+		transform: translateY(14px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes workflow-card-enter {
+	from {
+		opacity: 0;
+		transform: translate3d(22px, 8px, 0) scale(0.98);
+	}
+
+	to {
+		opacity: 1;
+		transform: translate3d(0, 0, 0) scale(1);
+	}
+}
+
+@keyframes hero-ambient-drift-primary {
+	0%,
+	100% {
+		opacity: 0.24;
+		transform: translate3d(0, 0, 0) scale(1);
 	}
 
 	50% {
-		transform: translateX(8%);
+		opacity: 0.32;
+		transform: translate3d(18px, -12px, 0) scale(1.035);
+	}
+}
+
+@keyframes hero-ambient-drift-secondary {
+	0%,
+	100% {
+		opacity: 0.18;
+		transform: translate3d(0, 0, 0) scale(1);
 	}
 
-	100% {
-		transform: translateX(-18%);
+	50% {
+		opacity: 0.26;
+		transform: translate3d(-16px, 14px, 0) scale(1.04);
+	}
+}
+
+.preview-reveal {
+	animation: preview-detail-enter 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
+	animation-delay: var(--preview-delay, 0ms);
+}
+
+.checklist-complete {
+	animation: checklist-complete 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-ambient::before,
+.hero-ambient::after {
+	content: "";
+	position: absolute;
+	z-index: -1;
+	pointer-events: none;
+	will-change: transform, opacity;
+}
+
+.hero-ambient::before {
+	top: 3%;
+	left: -16%;
+	width: 58%;
+	height: 58%;
+	background: radial-gradient(ellipse, rgb(191 219 254 / 0.62) 0%, rgb(224 231 255 / 0.28) 42%, transparent 72%);
+	filter: blur(48px);
+	animation: hero-ambient-drift-primary 14s ease-in-out infinite;
+}
+
+.hero-ambient::after {
+	right: -14%;
+	bottom: 0;
+	width: 56%;
+	height: 54%;
+	background: radial-gradient(ellipse, rgb(226 232 240 / 0.7) 0%, rgb(219 234 254 / 0.25) 46%, transparent 74%);
+	filter: blur(52px);
+	animation: hero-ambient-drift-secondary 17s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.preview-reveal,
+	.checklist-complete {
+		animation: none;
+	}
+
+	.hero-ambient::before,
+	.hero-ambient::after {
+		animation: none;
 	}
 }
 

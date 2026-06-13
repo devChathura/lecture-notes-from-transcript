@@ -8,7 +8,7 @@ const navLinks = [
 const Navbar = () => {
   return (
     <div className="pointer-events-none fixed left-0 right-0 top-4 z-50 flex justify-center px-3 sm:top-6 sm:px-4">
-      <nav className="pointer-events-auto flex w-full max-w-3xl items-center justify-between rounded-full border border-white/55 bg-white/65 px-3 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:px-4">
+      <nav className="pointer-events-auto flex w-full max-w-3xl animate-navbar-enter items-center justify-between rounded-full border border-white/55 bg-white/65 px-3 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl motion-reduce:animate-none sm:px-4">
         <a
           href="#"
           className="flex min-w-0 items-center gap-2 rounded-full pr-2 text-slate-950 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white/70"
