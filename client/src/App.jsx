@@ -4,6 +4,7 @@ import Hero from "./components/Hero";
 import Features from "./components/Features";
 import HowItWorks from "./components/HowItWorks";
 import EngineeringHighlights from "./components/EngineeringHighlights";
+import FinalCTA from "./components/FinalCTA";
 import FileUploader from "./components/FileUploader";
 import { generateStudyGuide } from "./services/apiService";
 import { Loader2, AlertCircle } from "lucide-react";
@@ -46,6 +47,7 @@ function App() {
         <Features />
         <HowItWorks />
         <EngineeringHighlights />
+        <FinalCTA />
 
         {!markdownNotes && !isProcessing && (
           <div id="upload" className="max-w-3xl mx-auto scroll-mt-28">

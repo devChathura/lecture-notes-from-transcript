@@ -302,6 +302,27 @@ html {
 	}
 }
 
+.final-cta-reveal {
+	opacity: 0;
+	transform: translate3d(0, 20px, 0) scale(0.985);
+	transition:
+		opacity 720ms cubic-bezier(0.22, 1, 0.36, 1),
+		transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.final-cta-reveal.is-visible {
+	opacity: 1;
+	transform: translate3d(0, 0, 0) scale(1);
+}
+
+.final-cta-link:focus-visible {
+	outline: none !important;
+	box-shadow:
+		0 0 0 2px rgb(248 250 252),
+		0 0 0 4px rgb(100 116 139) !important;
+	transition-duration: 0s;
+}
+
 .hero-ambient::before,
 .hero-ambient::after {
 	content: "";
@@ -351,12 +372,14 @@ html {
 	.how-it-works-summary-reveal,
 	.engineering-header-reveal,
 	.engineering-card-reveal,
+	.final-cta-reveal,
 	.how-it-works-header-reveal.is-visible,
 	.how-it-works-step-reveal.is-visible,
 	.how-it-works-line-reveal.is-visible,
 	.how-it-works-summary-reveal.is-visible,
 	.engineering-header-reveal.is-visible,
-	.engineering-card-reveal.is-visible {
+	.engineering-card-reveal.is-visible,
+	.final-cta-reveal.is-visible {
 		opacity: 1;
 		transform: none;
 		transition: none;
