@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
+import Features from "./components/Features";
 import FileUploader from "./components/FileUploader";
 import { generateStudyGuide } from "./services/apiService";
 import { Loader2, AlertCircle } from "lucide-react";
@@ -40,6 +41,7 @@ function App() {
       <div className="min-h-screen p-8">
         <Navbar />
         <Hero />
+        <Features />
 
         {!markdownNotes && !isProcessing && (
           <div id="upload" className="max-w-3xl mx-auto scroll-mt-28">

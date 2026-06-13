@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html {
+	scroll-behavior: smooth;
+}
+
 @theme {
 	--animate-aurora: aurora 60s linear infinite;
 	--animate-navbar-enter: navbar-enter 600ms cubic-bezier(0.22, 1, 0.36, 1) 100ms both;
@@ -128,6 +132,47 @@
 	animation: checklist-complete 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.features-header-reveal {
+	opacity: 0;
+	transform: translate3d(0, 18px, 0);
+	transition:
+		opacity 650ms cubic-bezier(0.22, 1, 0.36, 1),
+		transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.features-header-reveal.is-visible {
+	opacity: 1;
+	transform: translate3d(0, 0, 0);
+}
+
+.feature-reveal-card {
+	opacity: 0;
+	transform: translate3d(0, 20px, 0) scale(0.99);
+	transition:
+		opacity 560ms cubic-bezier(0.22, 1, 0.36, 1) var(--feature-delay, 0ms),
+		transform 560ms cubic-bezier(0.22, 1, 0.36, 1) var(--feature-delay, 0ms);
+}
+
+.feature-reveal-card.is-visible {
+	opacity: 1;
+	transform: translate3d(0, 0, 0) scale(1);
+}
+
+.feature-card-surface {
+	transition:
+		transform 200ms ease-out,
+		border-color 200ms ease-out,
+		box-shadow 200ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.feature-card-surface:hover {
+		transform: translate3d(0, -2px, 0);
+		border-color: rgb(203 213 225 / 0.9);
+		box-shadow: 0 14px 32px rgb(15 23 42 / 0.07);
+	}
+}
+
 .hero-ambient::before,
 .hero-ambient::after {
 	content: "";
@@ -158,9 +203,28 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
 	.preview-reveal,
 	.checklist-complete {
 		animation: none;
+	}
+
+	.features-header-reveal,
+	.feature-reveal-card,
+	.features-header-reveal.is-visible,
+	.feature-reveal-card.is-visible {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+
+	.feature-card-surface,
+	.feature-card-surface:hover {
+		transform: none;
+		transition: none;
 	}
 
 	.hero-ambient::before,
