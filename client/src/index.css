@@ -173,6 +173,76 @@ html {
 	}
 }
 
+.how-it-works-card {
+	transition:
+		transform 200ms ease-out,
+		border-color 200ms ease-out,
+		background-color 200ms ease-out,
+		box-shadow 200ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.how-it-works-card:hover {
+		transform: translate3d(0, -2px, 0);
+		border-color: rgb(203 213 225 / 0.88);
+		background-color: rgb(255 255 255 / 0.68);
+		box-shadow: 0 12px 28px rgb(15 23 42 / 0.055);
+	}
+}
+
+.how-it-works-header-reveal {
+	opacity: 0;
+	transform: translate3d(0, 18px, 0);
+	transition:
+		opacity 650ms cubic-bezier(0.22, 1, 0.36, 1),
+		transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.how-it-works-header-reveal.is-visible {
+	opacity: 1;
+	transform: translate3d(0, 0, 0);
+}
+
+.how-it-works-step-reveal {
+	opacity: 0;
+	transform: translate3d(0, 20px, 0) scale(0.99);
+	transition:
+		opacity 560ms cubic-bezier(0.22, 1, 0.36, 1) var(--step-delay, 0ms),
+		transform 560ms cubic-bezier(0.22, 1, 0.36, 1) var(--step-delay, 0ms);
+}
+
+.how-it-works-step-reveal.is-visible {
+	opacity: 1;
+	transform: translate3d(0, 0, 0) scale(1);
+}
+
+.how-it-works-line-reveal {
+	opacity: 0;
+	transform: scaleX(0);
+	transform-origin: left center;
+	transition:
+		opacity 300ms ease-out 140ms,
+		transform 700ms cubic-bezier(0.22, 1, 0.36, 1) 140ms;
+}
+
+.how-it-works-line-reveal.is-visible {
+	opacity: 1;
+	transform: scaleX(1);
+}
+
+.how-it-works-summary-reveal {
+	opacity: 0;
+	transform: translate3d(0, 8px, 0);
+	transition:
+		opacity 420ms ease-out 680ms,
+		transform 420ms ease-out 680ms;
+}
+
+.how-it-works-summary-reveal.is-visible {
+	opacity: 1;
+	transform: translate3d(0, 0, 0);
+}
+
 .hero-ambient::before,
 .hero-ambient::after {
 	content: "";
@@ -215,14 +285,24 @@ html {
 	.features-header-reveal,
 	.feature-reveal-card,
 	.features-header-reveal.is-visible,
-	.feature-reveal-card.is-visible {
+	.feature-reveal-card.is-visible,
+	.how-it-works-header-reveal,
+	.how-it-works-step-reveal,
+	.how-it-works-line-reveal,
+	.how-it-works-summary-reveal,
+	.how-it-works-header-reveal.is-visible,
+	.how-it-works-step-reveal.is-visible,
+	.how-it-works-line-reveal.is-visible,
+	.how-it-works-summary-reveal.is-visible {
 		opacity: 1;
 		transform: none;
 		transition: none;
 	}
 
 	.feature-card-surface,
-	.feature-card-surface:hover {
+	.feature-card-surface:hover,
+	.how-it-works-card,
+	.how-it-works-card:hover {
 		transform: none;
 		transition: none;
 	}
