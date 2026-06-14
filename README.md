@@ -44,7 +44,7 @@ This tool streamlines the learning process by automating the cleanup and synthes
 
 - **Transcript Parsing Coverage:** Backend parser and chunking tests currently cover the transcript-processing slice at roughly 94% line coverage in local test runs.
 - **Parsing Throughput:** In-memory regex parsing has been validated on 1,000-line SRT/VTT transcripts and runs in low-millisecond time on local benchmarks.
-- **AI Capacity:** Gemini 1.5 Flash orchestration is configured for single-pass synthesis over large chunked transcripts, with practical support for long-form lecture transcripts.
+- **AI Capacity:** Gemini 2.5 Flash orchestration is configured for single-pass synthesis over chunked lecture transcripts.
 
 ---
 
@@ -120,8 +120,9 @@ copy config.env.example config.env
 Then edit `server/config.env`:
 
 ```env
-PORT=3000
+PORT=5001
 GEMINI_API_KEY=your_gemini_api_key_here
+CORS_ORIGIN=http://localhost:5173
 ```
 
 Start the backend server:
@@ -149,6 +150,10 @@ Start the frontend development server:
 npm run dev
 ```
 
+For a separately hosted API, copy `client/.env.example` to `client/.env` and
+set `VITE_API_BASE_URL` to the backend API prefix. Keep the Gemini API key in
+the server environment only.
+
 ### 4. Build Commands
 
 To build the frontend for production:
@@ -162,7 +167,7 @@ npm run build
 
 ## 💻 Usage Workflow
 
-1. Open `http://localhost:5173` (or your configured Vite port) in your browser.
+1. Open `http://localhost:5173/try` (or your configured Vite URL followed by `/try`) in your browser.
 2. Drag and drop a valid `.srt` or `.vtt` file (up to 5 MB) into the upload zone.
 3. Wait for the file to be processed (parsing, chunking, and AI synthesis).
 4. View the generated study notes displayed in clean typography.
@@ -172,7 +177,7 @@ npm run build
 
 ## 📸 Screenshots & Demo
 
-Screenshots will be added once the frontend is connected to the backend upload flow.
+The landing page and `/try` experience are both connected to the current upload and note-generation flow.
 
 ---
 

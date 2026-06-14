@@ -69,7 +69,7 @@ async function generateStudyGuide(chunks) {
     return finalMarkdown;
   } catch (error) {
     console.error("Error synthesizing final notes:", error.message);
-    throw new Error("Failed to generate final study guide.");
+    throw new Error("Failed to generate final study guide.", { cause: error });
   }
 }
 

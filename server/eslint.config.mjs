@@ -6,18 +6,19 @@ export default [
   js.configs.recommended,
   eslintPluginPrettierRecommended,
   {
+    files: ["**/*.js"],
     languageOptions: {
       ecmaVersion: 2024,
       sourceType: "commonjs",
       globals: {
         ...globals.node,
-        ...globals.es2021
-      }
+        ...globals.es2021,
+      },
     },
     rules: {
       "prettier/prettier": "error",
-      "no-unused-vars": "warn",
-      "no-console": "off"
-    }
-  }
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-console": "off",
+    },
+  },
 ];
