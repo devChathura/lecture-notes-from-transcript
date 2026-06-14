@@ -16,7 +16,6 @@ async function chunkText(text, maxChunkSize = 4000, overlap = 400) {
   if (!text || text.trim() === "") return [];
 
   try {
-    const formattedText = text.replace(/([.?!])\s+/g, "$1\n");
     const splitter = new RecursiveCharacterTextSplitter({
       chunkSize: maxChunkSize,
       chunkOverlap: overlap,
@@ -27,7 +26,7 @@ async function chunkText(text, maxChunkSize = 4000, overlap = 400) {
     return chunks;
   } catch (error) {
     console.error("Error within chunkText service:", error);
-    throw new Error(`Chunking failed: ${error.message}`);
+    throw new Error(`Chunking failed: ${error.message}`, { cause: error });
   }
 }
 

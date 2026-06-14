@@ -6,8 +6,7 @@ function parseSrtToText(filePath) {
 
   let text = content.replace(/\r\n/g, "\n");
 
-  const srtPattern =
-    /^\d+\n\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}\n/gm;
+  const srtPattern = /^\d+\n\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}\n/gm;
   text = text.replace(srtPattern, "");
 
   const htmlTagPattern = /<[^>]+>/g;
@@ -38,14 +37,8 @@ function parseVttToText(filePath) {
 }
 
 if (require.main === module) {
-  const srtPath = path.join(
-    __dirname,
-    "../../POC_sample_test_files/sample_0.srt",
-  );
-  const vttPath = path.join(
-    __dirname,
-    "../../POC_sample_test_files/sample.vtt",
-  );
+  const srtPath = path.join(__dirname, "../../POC_sample_test_files/sample_0.srt");
+  const vttPath = path.join(__dirname, "../../POC_sample_test_files/sample.vtt");
   try {
     console.log("--- STARTING SRT PARSE POC ---");
     console.log(parseSrtToText(srtPath).substring(0, 200) + "...");
