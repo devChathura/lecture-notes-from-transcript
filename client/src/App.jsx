@@ -5,6 +5,7 @@ import Features from "./components/Features";
 import HowItWorks from "./components/HowItWorks";
 import EngineeringHighlights from "./components/EngineeringHighlights";
 import FinalCTA from "./components/FinalCTA";
+import Footer from "./components/footer";
 import FileUploader from "./components/FileUploader";
 import { generateStudyGuide } from "./services/apiService";
 import { Loader2, AlertCircle } from "lucide-react";
@@ -89,6 +90,8 @@ function App() {
             <MarkdownViewer markdown={markdownNotes} />
           </div>
         )}
+
+        <Footer />
       </div>
     </AuroraBackground>
   );
