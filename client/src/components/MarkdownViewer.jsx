@@ -54,6 +54,12 @@ const getDownloadName = (fileName) => {
   return `${safeName || "lecture-companion"}-study-notes.md`;
 };
 
+const markdownComponents = {
+  h1: ({ children }) => <h2 data-note-title="true">{children}</h2>,
+  h2: ({ children }) => <h3 data-note-section="true">{children}</h3>,
+  h3: ({ children }) => <h4 data-note-subsection="true">{children}</h4>,
+};
+
 export default function MarkdownViewer({ markdown, fileName }) {
   const [copied, setCopied] = useState(false);
   const copyTimerRef = useRef(null);
@@ -159,9 +165,9 @@ export default function MarkdownViewer({ markdown, fileName }) {
       <div
         className="overflow-x-hidden p-5 text-[15px] text-slate-800 [overflow-wrap:anywhere] sm:p-6 lg:max-h-[calc(100vh-230px)] lg:overflow-y-auto
         prose-container
-        [&>h1]:mb-5 [&>h1]:mt-0 [&>h1]:border-b [&>h1]:border-slate-200/80 [&>h1]:pb-3 [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:leading-tight [&>h1]:tracking-tight [&>h1]:text-slate-950
-        [&>h2]:mb-3 [&>h2]:mt-7 [&>h2]:text-xl [&>h2]:font-bold [&>h2]:leading-snug [&>h2]:text-slate-900
-        [&>h3]:mb-2 [&>h3]:mt-5 [&>h3]:text-lg [&>h3]:font-semibold [&>h3]:leading-snug [&>h3]:text-slate-800
+        [&>[data-note-title]]:mb-5 [&>[data-note-title]]:mt-0 [&>[data-note-title]]:border-b [&>[data-note-title]]:border-slate-200/80 [&>[data-note-title]]:pb-3 [&>[data-note-title]]:text-2xl [&>[data-note-title]]:font-bold [&>[data-note-title]]:leading-tight [&>[data-note-title]]:tracking-tight [&>[data-note-title]]:text-slate-950
+        [&>[data-note-section]]:mb-3 [&>[data-note-section]]:mt-7 [&>[data-note-section]]:text-xl [&>[data-note-section]]:font-bold [&>[data-note-section]]:leading-snug [&>[data-note-section]]:text-slate-900
+        [&>[data-note-subsection]]:mb-2 [&>[data-note-subsection]]:mt-5 [&>[data-note-subsection]]:text-lg [&>[data-note-subsection]]:font-semibold [&>[data-note-subsection]]:leading-snug [&>[data-note-subsection]]:text-slate-800
         [&>p]:mb-4 [&>p]:leading-7 [&>p]:text-slate-600
         [&>ul]:mb-5 [&>ul]:list-disc [&>ul]:space-y-1.5 [&>ul]:pl-5 [&>ul]:text-slate-600
         [&>ol]:mb-5 [&>ol]:list-decimal [&>ol]:space-y-1.5 [&>ol]:pl-5 [&>ol]:text-slate-600
@@ -173,10 +179,10 @@ export default function MarkdownViewer({ markdown, fileName }) {
         [&_pre]:my-5 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-slate-200 [&_pre]:bg-slate-100/80 [&_pre]:p-4 [&_pre]:text-sm [&_pre]:leading-6 [&_pre]:text-slate-800
         [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit
         [&_hr]:my-6 [&_hr]:border-slate-200
-        [&_table]:my-5 [&_table]:w-full [&_table]:border-collapse [&_table]:text-left [&_th]:border-b [&_th]:border-slate-300 [&_th]:p-2 [&_th]:font-semibold [&_td]:border-b [&_td]:border-slate-200 [&_td]:p-2
+        [&_table]:my-5 [&_table]:block [&_table]:w-full [&_table]:overflow-x-auto [&_table]:border-collapse [&_table]:text-left [&_th]:border-b [&_th]:border-slate-300 [&_th]:p-2 [&_th]:font-semibold [&_td]:border-b [&_td]:border-slate-200 [&_td]:p-2
       "
       >
-        <ReactMarkdown>{markdown}</ReactMarkdown>
+        <ReactMarkdown components={markdownComponents}>{markdown}</ReactMarkdown>
       </div>
 
       <span className="sr-only" role="status" aria-live="polite">

@@ -8,10 +8,12 @@ import {
   FileCode2,
   FileText,
   Hash,
+  History,
   ListChecks,
   Loader2,
   RefreshCw,
   Sparkles,
+  Trash2,
   UploadCloud,
 } from "lucide-react";
 import FileUploader from "../components/FileUploader";
@@ -32,6 +34,120 @@ const previewHighlights = [
   { label: "Key Ideas", icon: ListChecks },
   { label: "Markdown", icon: FileCode2 },
 ];
+
+const GENERATION_STORAGE_KEY = "lecture-companion:last-generation";
+
+const formatGeneratedAt = (generatedAt) => {
+  if (!generatedAt) {
+    return null;
+  }
+
+  const generatedDate = new Date(generatedAt);
+
+  if (Number.isNaN(generatedDate.getTime())) {
+    return null;
+  }
+
+  const today = new Date();
+  const isToday =
+    generatedDate.getFullYear() === today.getFullYear() &&
+    generatedDate.getMonth() === today.getMonth() &&
+    generatedDate.getDate() === today.getDate();
+
+  if (isToday) {
+    return `Generated today at ${new Intl.DateTimeFormat(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(generatedDate)}`;
+  }
+
+  return `Generated on ${new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(generatedDate)}`;
+};
+
+const clearGeneratedNotesStorage = () => {
+  try {
+    window.localStorage.removeItem(GENERATION_STORAGE_KEY);
+  } catch (storageError) {
+    if (import.meta.env.DEV) {
+      console.warn(
+        "[Lecture Companion] Could not clear saved notes:",
+        storageError
+      );
+    }
+  }
+};
+
+const loadGeneratedNotesFromStorage = () => {
+  try {
+    const storedValue = window.localStorage.getItem(GENERATION_STORAGE_KEY);
+
+    if (!storedValue) {
+      return null;
+    }
+
+    const storedResult = JSON.parse(storedValue);
+    const isValid =
+      storedResult?.version === 1 &&
+      typeof storedResult.markdown === "string" &&
+      storedResult.markdown.trim().length > 0 &&
+      typeof storedResult.fileName === "string" &&
+      storedResult.fileName.trim().length > 0 &&
+      typeof storedResult.fileSize === "number" &&
+      Number.isFinite(storedResult.fileSize) &&
+      storedResult.fileSize >= 0 &&
+      typeof storedResult.fileType === "string" &&
+      [".SRT", ".VTT"].includes(storedResult.fileType.toUpperCase()) &&
+      typeof storedResult.generatedAt === "string" &&
+      !Number.isNaN(Date.parse(storedResult.generatedAt));
+
+    if (!isValid) {
+      clearGeneratedNotesStorage();
+      return null;
+    }
+
+    return storedResult;
+  } catch (storageError) {
+    clearGeneratedNotesStorage();
+    if (import.meta.env.DEV) {
+      console.warn(
+        "[Lecture Companion] Could not restore saved notes:",
+        storageError
+      );
+    }
+    return null;
+  }
+};
+
+const saveGeneratedNotesToStorage = (markdown, file) => {
+  try {
+    const fileType = file.name
+      .substring(file.name.lastIndexOf("."))
+      .toUpperCase();
+
+    window.localStorage.setItem(
+      GENERATION_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        markdown,
+        fileName: file.name,
+        fileSize: file.size,
+        fileType,
+        generatedAt: new Date().toISOString(),
+      })
+    );
+  } catch (storageError) {
+    if (import.meta.env.DEV) {
+      console.warn(
+        "[Lecture Companion] Could not save generated notes:",
+        storageError
+      );
+    }
+  }
+};
 
 const normalizeGenerationError = (error) => {
   const sourceError = error?.cause || error;
@@ -139,7 +255,6 @@ const GenerationErrorPanel = ({ error, canRetry, onRetry }) => {
     <div
       className="try-state-enter mt-4 rounded-2xl border border-red-200/70 bg-red-50/70 p-4 text-red-700"
       role="alert"
-      aria-live="assertive"
     >
       <div className="flex items-start gap-3">
         <span
@@ -183,8 +298,24 @@ const GenerationErrorPanel = ({ error, canRetry, onRetry }) => {
 };
 
 const TryPage = () => {
+  const [initialStoredResult] = useState(loadGeneratedNotesFromStorage);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [markdown, setMarkdown] = useState(null);
+  const [restoredFileMeta, setRestoredFileMeta] = useState(() =>
+    initialStoredResult
+      ? {
+          fileName: initialStoredResult.fileName,
+          fileSize: initialStoredResult.fileSize,
+          fileType: initialStoredResult.fileType.toUpperCase(),
+          generatedAt: initialStoredResult.generatedAt,
+        }
+      : null
+  );
+  const [isRestoredFromCache, setIsRestoredFromCache] = useState(
+    Boolean(initialStoredResult)
+  );
+  const [markdown, setMarkdown] = useState(
+    () => initialStoredResult?.markdown || null
+  );
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(null);
   const [activeProcessingStep, setActiveProcessingStep] = useState(0);
@@ -196,31 +327,47 @@ const TryPage = () => {
     (!selectedFile && !isGenerating && showMarkdownSample
       ? MARKDOWN_VIEWER_SAMPLE
       : null);
-  const hasGeneratedNotes = Boolean(markdown && selectedFile);
-  const selectedFileExtension = selectedFile
-    ? selectedFile.name.substring(selectedFile.name.lastIndexOf(".")).toUpperCase()
+  const sourceFileMeta = selectedFile
+    ? {
+        fileName: selectedFile.name,
+        fileSize: selectedFile.size,
+        fileType: selectedFile.name
+          .substring(selectedFile.name.lastIndexOf("."))
+          .toUpperCase(),
+      }
+    : restoredFileMeta;
+  const hasGeneratedNotes = Boolean(markdown && sourceFileMeta);
+  const selectedFileExtension = sourceFileMeta?.fileType || "";
+  const selectedFileSize = sourceFileMeta
+    ? `${(sourceFileMeta.fileSize / 1024).toFixed(1)} KB`
     : "";
-  const selectedFileSize = selectedFile
-    ? `${(selectedFile.size / 1024).toFixed(1)} KB`
-    : "";
+  const restoredGeneratedAt = formatGeneratedAt(
+    restoredFileMeta?.generatedAt
+  );
 
   useEffect(() => {
-    if (!isGenerating) {
+    if (
+      !isGenerating ||
+      activeProcessingStep >= processingSteps.length - 1
+    ) {
       return undefined;
     }
 
-    const stepTimer = window.setInterval(() => {
+    const stepTimer = window.setTimeout(() => {
       setActiveProcessingStep((currentStep) =>
         Math.min(currentStep + 1, processingSteps.length - 1)
       );
     }, 1100);
 
-    return () => window.clearInterval(stepTimer);
-  }, [isGenerating]);
+    return () => window.clearTimeout(stepTimer);
+  }, [activeProcessingStep, isGenerating]);
 
   const handleFileSelect = (file) => {
     setSelectedFile(file);
+    setRestoredFileMeta(null);
+    setIsRestoredFromCache(false);
     setError(null);
+    clearGeneratedNotesStorage();
 
     if (!file) {
       setMarkdown(null);
@@ -247,6 +394,9 @@ const TryPage = () => {
       }
 
       setMarkdown(result.data.markdown);
+      setRestoredFileMeta(null);
+      setIsRestoredFromCache(false);
+      saveGeneratedNotesToStorage(result.data.markdown, selectedFile);
     } catch (requestError) {
       console.error(
         "[Lecture Companion] Study note generation failed:",
@@ -260,10 +410,13 @@ const TryPage = () => {
 
   const handleUploadAnotherFile = () => {
     setSelectedFile(null);
+    setRestoredFileMeta(null);
+    setIsRestoredFromCache(false);
     setMarkdown(null);
     setError(null);
     setActiveProcessingStep(0);
     setIsGenerating(false);
+    clearGeneratedNotesStorage();
   };
 
   return (
@@ -344,22 +497,34 @@ const TryPage = () => {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                      Source file
+                      {isRestoredFromCache ? "Restored notes" : "Source file"}
                     </p>
                     <h2
                       id="source-file-heading"
                       className="mt-2 text-xl font-bold text-slate-950"
                     >
-                      Notes generated
+                      {isRestoredFromCache
+                        ? "Previous study guide restored"
+                        : "Notes generated"}
                     </h2>
                   </div>
-                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-200/70 bg-emerald-50/70 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                    <Check
-                      className="h-3.5 w-3.5"
-                      strokeWidth={2.5}
-                      aria-hidden="true"
-                    />
-                    Ready
+                  <span
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${
+                      isRestoredFromCache
+                        ? "border-slate-200/70 bg-slate-100/80 text-slate-600"
+                        : "border-emerald-200/70 bg-emerald-50/70 text-emerald-700"
+                    }`}
+                  >
+                    {isRestoredFromCache ? (
+                      <History className="h-3.5 w-3.5" aria-hidden="true" />
+                    ) : (
+                      <Check
+                        className="h-3.5 w-3.5"
+                        strokeWidth={2.5}
+                        aria-hidden="true"
+                      />
+                    )}
+                    {isRestoredFromCache ? "Restored" : "Ready"}
                   </span>
                 </div>
 
@@ -372,11 +537,16 @@ const TryPage = () => {
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-slate-900">
-                      {selectedFile.name}
+                      {sourceFileMeta.fileName}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
                       {selectedFileSize}
                     </p>
+                    {isRestoredFromCache && restoredGeneratedAt && (
+                      <p className="mt-1 text-xs text-slate-500">
+                        {restoredGeneratedAt}
+                      </p>
+                    )}
                   </div>
                   <span className="shrink-0 rounded-md border border-slate-200/80 bg-slate-50 px-2 py-1 text-[11px] font-bold tracking-wide text-slate-600">
                     {selectedFileExtension}
@@ -384,47 +554,69 @@ const TryPage = () => {
                 </div>
 
                 <p className="mt-4 text-sm leading-6 text-slate-600">
-                  Your study guide is ready. You can regenerate notes from this
-                  file or upload another transcript.
+                  {selectedFile
+                    ? "Your study guide is ready. You can regenerate notes from this file or upload another transcript."
+                    : "Your generated notes were saved locally in this browser. Upload the original file again if you want to regenerate them."}
                 </p>
 
                 <div className="mt-5 grid gap-2.5">
-                  <button
-                    type="button"
-                    onClick={handleGenerate}
-                    disabled={isGenerating}
-                    aria-busy={isGenerating}
-                    className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 motion-reduce:transform-none ${
-                      isGenerating
-                        ? "cursor-wait bg-slate-900 text-white shadow-sm"
-                        : "bg-slate-950 text-white shadow-md shadow-slate-950/15 hover:-translate-y-0.5 hover:bg-black hover:shadow-lg active:translate-y-0 active:scale-[0.99]"
-                    }`}
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader2
-                          className="h-4 w-4 animate-spin motion-reduce:animate-none"
-                          aria-hidden="true"
-                        />
-                        Regenerating notes...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="h-4 w-4" aria-hidden="true" />
-                        Regenerate Notes
-                      </>
-                    )}
-                  </button>
+                  {selectedFile && (
+                    <button
+                      type="button"
+                      onClick={handleGenerate}
+                      disabled={isGenerating}
+                      aria-busy={isGenerating}
+                      className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 motion-reduce:transform-none ${
+                        isGenerating
+                          ? "cursor-wait bg-slate-900 text-white shadow-sm"
+                          : "bg-slate-950 text-white shadow-md shadow-slate-950/15 hover:-translate-y-0.5 hover:bg-black hover:shadow-lg active:translate-y-0 active:scale-[0.99]"
+                      }`}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2
+                            className="h-4 w-4 animate-spin motion-reduce:animate-none"
+                            aria-hidden="true"
+                          />
+                          Regenerating notes...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="h-4 w-4" aria-hidden="true" />
+                          Regenerate Notes
+                        </>
+                      )}
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={handleUploadAnotherFile}
                     disabled={isGenerating}
-                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-slate-200/90 bg-white/70 px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 ease-out hover:border-slate-300 hover:bg-white hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+                    className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 ease-out disabled:cursor-not-allowed disabled:opacity-55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 ${
+                      selectedFile
+                        ? "border border-slate-200/90 bg-white/70 text-slate-700 shadow-sm hover:border-slate-300 hover:bg-white hover:text-slate-950"
+                        : "bg-slate-950 text-white shadow-md shadow-slate-950/15 hover:-translate-y-0.5 hover:bg-black hover:shadow-lg active:translate-y-0 active:scale-[0.99]"
+                    }`}
                   >
                     <UploadCloud className="h-4 w-4" aria-hidden="true" />
-                    Upload Another File
+                    Upload another file
                   </button>
+                  {isRestoredFromCache && (
+                    <button
+                      type="button"
+                      onClick={handleUploadAnotherFile}
+                      className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-slate-500 transition-colors duration-200 hover:bg-slate-100/70 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
+                      Clear saved notes
+                    </button>
+                  )}
                 </div>
+
+                <p className="mt-4 text-xs leading-5 text-slate-500">
+                  Generated notes are saved locally in this browser so they
+                  remain available after refresh.
+                </p>
 
                 <GenerationErrorPanel
                   error={error}
@@ -560,13 +752,23 @@ const TryPage = () => {
                 </ul>
               </div>
             ) : displayedMarkdown ? (
-              <MarkdownViewer
-                markdown={displayedMarkdown}
-                fileName={
-                  selectedFile?.name ||
-                  (showMarkdownSample ? "sample-lecture.vtt" : undefined)
-                }
-              />
+              <div>
+                {isRestoredFromCache && (
+                  <div className="mb-3 flex justify-start">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200/70 bg-slate-100/80 px-3 py-1 text-xs font-semibold text-slate-600">
+                      <History className="h-3.5 w-3.5" aria-hidden="true" />
+                      Restored from previous session
+                    </span>
+                  </div>
+                )}
+                <MarkdownViewer
+                  markdown={displayedMarkdown}
+                  fileName={
+                    sourceFileMeta?.fileName ||
+                    (showMarkdownSample ? "sample-lecture.vtt" : undefined)
+                  }
+                />
+              </div>
             ) : (
               <div className="try-state-enter flex min-h-[340px] flex-col items-center justify-center rounded-2xl border border-slate-200/70 bg-white/60 px-6 py-9 text-center shadow-[0_14px_40px_rgba(15,23,42,0.04)] backdrop-blur-md sm:min-h-[400px] sm:px-10 lg:min-h-[460px]">
                 <span

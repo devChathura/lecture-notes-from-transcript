@@ -127,6 +127,7 @@ export default function FileUploader({ onFileSelect, disabled = false }) {
           ref={fileInputRef}
           onChange={handleManualSelect}
           accept=".srt,.vtt"
+          aria-label="Choose a subtitle file"
           className="hidden"
           disabled={disabled}
         />

@@ -71,7 +71,7 @@ const Footer = () => {
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
             <div>
               <a
-                href="#"
+                href="/"
                 aria-label="Lecture Companion home"
                 className="inline-flex items-center gap-3 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500"
               >
