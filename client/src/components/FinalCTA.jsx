@@ -68,7 +68,7 @@ const FinalCTA = () => {
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <a
-              href="#upload"
+              href="/try"
               className="final-cta-link inline-flex items-center justify-center gap-2 rounded-full bg-[#141414] px-6 py-3.5 text-[15px] font-semibold text-white shadow-lg shadow-slate-950/15 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-black hover:shadow-xl hover:shadow-slate-950/20 active:translate-y-0 active:scale-[0.99] motion-reduce:transform-none"
             >
               Try Lecture Companion

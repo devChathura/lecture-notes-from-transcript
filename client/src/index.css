@@ -97,6 +97,78 @@ html {
 	}
 }
 
+@keyframes try-header-enter {
+	from {
+		opacity: 0;
+		transform: translate3d(0, -10px, 0);
+	}
+
+	to {
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
+	}
+}
+
+@keyframes try-content-enter {
+	from {
+		opacity: 0;
+		transform: translate3d(0, 16px, 0);
+	}
+
+	to {
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
+	}
+}
+
+@keyframes try-state-enter {
+	from {
+		opacity: 0;
+		transform: translate3d(0, 8px, 0);
+	}
+
+	to {
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
+	}
+}
+
+.try-header-enter {
+	animation: try-header-enter 580ms cubic-bezier(0.22, 1, 0.36, 1) 60ms both;
+}
+
+.try-title-enter {
+	animation: try-content-enter 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.try-title-label {
+	animation-delay: 120ms;
+}
+
+.try-title-heading {
+	animation-delay: 230ms;
+}
+
+.try-title-copy {
+	animation-delay: 340ms;
+}
+
+.try-panel-enter {
+	animation: try-content-enter 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.try-upload-panel {
+	animation-delay: 230ms;
+}
+
+.try-notes-panel {
+	animation-delay: 330ms;
+}
+
+.try-state-enter {
+	animation: try-state-enter 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @keyframes hero-ambient-drift-primary {
 	0%,
 	100% {
@@ -358,8 +430,14 @@ html {
 	}
 
 	.preview-reveal,
-	.checklist-complete {
+	.checklist-complete,
+	.try-header-enter,
+	.try-title-enter,
+	.try-panel-enter,
+	.try-state-enter {
 		animation: none;
+		opacity: 1;
+		transform: none;
 	}
 
 	.features-header-reveal,

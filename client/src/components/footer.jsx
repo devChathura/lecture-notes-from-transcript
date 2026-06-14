@@ -21,7 +21,7 @@ const linkGroups = [
     links: [
       { label: "Features", href: "#features" },
       { label: "How it works", href: "#how-it-works" },
-      { label: "Try Lecture Companion", href: "#try" },
+      { label: "Try Lecture Companion", href: "/try" },
     ],
   },
   {

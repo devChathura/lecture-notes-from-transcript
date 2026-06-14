@@ -50,7 +50,7 @@ const Hero = () => {
 
           <div className="mt-7 flex w-full animate-hero-actions flex-col gap-3 motion-reduce:animate-none sm:w-auto sm:flex-row">
             <a
-              href="#upload"
+              href="/try"
               className="inline-flex items-center justify-center gap-2 rounded-full bg-[#141414] px-6 py-3.5 text-[15px] font-semibold text-white shadow-lg shadow-slate-950/15 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-black hover:shadow-xl hover:shadow-slate-950/20 active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 motion-reduce:transform-none"
             >
               Try Lecture Companion
