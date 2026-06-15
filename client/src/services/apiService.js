@@ -1,15 +1,14 @@
 import axios from "axios";
 
-const API_URL = (
-  import.meta.env.VITE_API_BASE_URL?.trim() || "/api/v1"
-).replace(/\/+$/, "");
-
 export const generateStudyGuide = async (file) => {
+  const apiUrl = (
+    import.meta.env.VITE_API_BASE_URL?.trim() || "/api/v1"
+  ).replace(/\/+$/, "");
   const formData = new FormData();
   formData.append("file", file);
 
   try {
-    const response = await axios.post(`${API_URL}/generate`, formData, {
+    const response = await axios.post(`${apiUrl}/generate`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
