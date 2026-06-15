@@ -154,6 +154,10 @@ For a separately hosted API, copy `client/.env.example` to `client/.env` and
 set `VITE_API_BASE_URL` to the backend API prefix. Keep the Gemini API key in
 the server environment only.
 
+Public demo mode uses a bundled sample result to avoid exposing or consuming
+live Gemini API quota. The full backend-powered workflow can still be run
+locally with a Gemini API key.
+
 ### 4. Build Commands
 
 To build the frontend for production:

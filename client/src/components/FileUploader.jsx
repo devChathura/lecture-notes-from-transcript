@@ -1,7 +1,11 @@
 import { useState, useRef } from "react";
 import { AlertCircle, Check, FileText, UploadCloud, X } from "lucide-react";
 
-export default function FileUploader({ onFileSelect, disabled = false }) {
+export default function FileUploader({
+  onFileSelect,
+  disabled = false,
+  readyLabel = "Ready to generate",
+}) {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState(null);
   const [error, setError] = useState(null);
@@ -205,7 +209,7 @@ export default function FileUploader({ onFileSelect, disabled = false }) {
             <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
               <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
                 <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                Ready to generate
+                {readyLabel}
               </span>
               <span className="h-4 w-px bg-slate-200" aria-hidden="true" />
               <button
