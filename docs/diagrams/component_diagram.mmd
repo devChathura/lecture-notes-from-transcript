@@ -1,13 +1,30 @@
-graph TD
-    subgraph "Node.js Backend"
-        Controller[Upload Controller] --> 
-        Validator[File Validator] -->
-        Parser[Transcript Parser]
-        Parser --> Chunker[Chunking Engine]
-        Chunker --> Orchestrator[AI Orchestrator]
-        Orchestrator --> Formatter[Output Formatter]
-    end
+flowchart TD
+    Client[React Try Page]
+    Gate[Live Generation Gate]
+    Limiter[Generation Rate Limiter]
+    Upload[Multer Upload Middleware]
+    Controller[Generate Controller]
+    Validator[Subtitle Validation Service]
+    Parser[SRT / VTT Parser Service]
+    Chunker[Chunking Service]
+    AI[Gemini AI Service]
+    Errors[Global Error Handler]
+    Gemini[Google Gemini API]
 
-    SPA[React Frontend] -- ".srt File" --> Controller
-    Orchestrator -- "Context Chunks" --> LLM[External AI API]
-    Formatter -- "Markdown Response" --> SPA
+    Client -->|File field: file| Gate
+    Gate --> Limiter
+    Limiter --> Upload
+    Upload --> Controller
+    Controller --> Validator
+    Validator --> Parser
+    Parser --> Chunker
+    Chunker --> AI
+    AI --> Gemini
+    Gemini --> AI
+    AI -->|Markdown| Controller
+    Controller -->|JSON response| Client
+
+    Gate -. failures .-> Errors
+    Limiter -. failures .-> Errors
+    Upload -. failures .-> Errors
+    Controller -. failures .-> Errors

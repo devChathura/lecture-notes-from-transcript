@@ -41,12 +41,14 @@ Tertiary users are educators and content creators who want to repurpose their ow
 
 ## User Flow
 
-1. The user opens the application and sees a simple single-page interface focused on one task.
-2. The user drags and drops a `.srt` or `.vtt` file into the upload area.
-3. The application validates the file and begins processing it.
-4. The UI shows progress states such as parsing, analyzing, chunking, and generating notes so the user understands the system is working.
-5. The application displays the generated notes in a structured, easy-to-scan layout.
-6. The user copies the notes in Markdown format or downloads them as a `.md` file.
+1. The user opens the landing page and navigates to the `/try` experience.
+2. The user drags and drops or browses for an `.srt` or `.vtt` file.
+3. The client validates the file type and size before enabling generation.
+4. The backend validates, parses, cleans, and chunks the subtitle content.
+5. The UI shows a processing state while the backend generates the study guide.
+6. The application displays the generated notes in a structured Markdown view.
+7. The user copies, downloads, regenerates, or replaces the source file.
+8. The latest generated result remains available after a browser refresh.
 
 ## Functional Requirements
 
@@ -61,12 +63,14 @@ Tertiary users are educators and content creators who want to repurpose their ow
 
 ## Non-Functional Requirements
 
-- NFR1: The system should process small subtitle files in under 10 seconds.
-- NFR2: The output structure should remain consistent across similar inputs.
-- NFR3: The system should handle larger transcripts gracefully without failing.
-- NFR4: The system should fail gracefully and provide feedback for unsupported or corrupted files.
-- NFR5: The interface should remain simple, readable, and easy to use.
-- NFR6: The application should provide visible processing feedback during long-running operations.
+- NFR1: The system should reject unsupported, malformed, oversized, or unreadable uploads safely.
+- NFR2: The output should use a predictable Markdown hierarchy for study notes.
+- NFR3: The backend should enforce configurable upload and transcript-size limits.
+- NFR4: Provider and network failures should return user-friendly errors without exposing production internals.
+- NFR5: The interface should remain responsive, keyboard accessible, readable, and free from horizontal overflow.
+- NFR6: The application should provide visible processing feedback during generation.
+- NFR7: Public demo mode should complete the sample flow without calling the backend or Gemini.
+- NFR8: Generated notes restored from browser storage should be validated before use.
 
 ## Constraints
 
@@ -77,8 +81,11 @@ Tertiary users are educators and content creators who want to repurpose their ow
 
 ## Success Criteria
 
-- The system can process a standard 1-hour lecture transcript of roughly 8,000 words and generate notes in under 15 seconds.
-- The parser removes timecodes and subtitle metadata correctly from standard `.srt` and `.vtt` files without crashing.
-- At least 90% of generated outputs contain all required sections (headings, bullet points, key concepts).
-- The output stays grounded in the transcript and avoids inventing facts not supported by the source material.
-- Users can successfully copy or download the generated notes in Markdown format.
+- Valid UTF-8 `.srt` and `.vtt` files pass backend validation.
+- Invalid, binary, malformed, and oversized uploads are rejected safely.
+- The parser removes standard subtitle metadata while preserving spoken content.
+- Long cleaned transcripts are segmented consistently and limited before AI generation.
+- Successful generation returns Markdown that can be previewed, copied, and downloaded.
+- Failed generation produces a clear user-facing error and allows retrying with the selected file.
+- Public demo mode loads the bundled study guide without a backend request.
+- The latest valid generated result can be restored or cleared after a browser refresh.

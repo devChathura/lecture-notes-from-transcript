@@ -1,4 +1,17 @@
-graph TD
-    User((Student/Learner)) -- Uploads .srt/.vtt & <br/> receives notes --> System[Lecture notes from transcript System]
-    System -- Sends cleaned transcript <br/> chunks --> AIService[External AI API]
-    AIService -- Returns structured <br/> summaries/notes --> System
+flowchart LR
+    User((Student / Learner))
+
+    subgraph LectureCompanion[Lecture Companion]
+        Client[React / Vite Client]
+        API[Node.js / Express API]
+        Storage[(Browser localStorage)]
+    end
+
+    Gemini[Google Gemini API]
+
+    User -->|Uses landing page and Try page| Client
+    Client -->|POST /api/v1/generate<br/>multipart/form-data| API
+    API -->|Markdown response| Client
+    Client <-->|Save / restore latest result| Storage
+    API -->|Bounded transcript prompt| Gemini
+    Gemini -->|Generated Markdown| API
