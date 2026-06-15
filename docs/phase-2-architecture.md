@@ -1,94 +1,217 @@
-# Phase 2: System Architecture & Design
+# Phase 2: System Architecture and Design
 
-## 1. C4 Model Diagrams
+## 1. Architecture Goals
 
-**Level 1: System Context**
-The high-level view of how users interact with the AI Lecture Companion and how it relies on external intelligence.
+Lecture Companion is designed around one focused workflow: convert a subtitle
+file into a readable Markdown study guide without exposing provider credentials
+or permanently storing the uploaded transcript.
 
-![ System Context Diagram ](./diagrams/c4_context_diagram.svg)
+The architecture prioritizes:
 
-**Level 2: Container Diagram**
-Focuses on the high-level technology choices and the communication between the client and server.
-![ Container Diagram](./diagrams/c4_container_diagram.svg)
+- Clear separation between the React client and Express API
+- Stateless, in-memory request processing
+- Independent subtitle validation, parsing, chunking, and AI services
+- Explicit limits around uploaded and cleaned transcript content
+- A public sample mode that does not consume Gemini quota
+- Testable service boundaries and production-safe failure behavior
 
-**Level 3: Component Diagram (Backend API)**
-A deep dive into the internal logic of the Node.js server.
-![ Component Diagram](./diagrams/c4_component_diagram.svg)
+## 2. C4 Model Diagrams
 
-## 2. Decision Took
+### Level 1: System Context
 
-| Decision      | Selection       | Justification                                                                                                                                                          |
-| :------------ | :-------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Pattern       | Client-Server   | Separates UI concerns from heavy text processing. Protects sensitive API keys (cannot expose LLM API keys in the frontend code) from being exposed on the client-side. |
-| State         | Stateless API   | The server does not store files or session data. This makes the system easier to scale and reduces the security risk of storing user data.                             |
-| Backend       | Node.js/Express | Easiness of handling asynchronous I/O tasks and wiring different services. Ideal for processing text streams.                                                          |
-| Communication | JSON/REST       | Standard, lightweight, and easy to debug. Allows the frontend to remain decoupled from the backend implementation.                                                     |
+Shows the learner, Lecture Companion, and the external Gemini service.
 
-## 3. Data Flow
+![System Context Diagram](./diagrams/c4_context_diagram.svg)
 
-- **Ingestion**: Frontend validates file type and sends the .srt via a multi-part form request.
-- **Sanitization**: The Transcript Parser uses Regular Expressions to strip timestamps, sequence numbers, and HTML styling.
-- **Segmentation**: The Chunking Engine breaks the clean text into 4000-character segments with a 10% overlap to preserve context.
-- **Synthesis**: The AI Orchestrator sends segments to the LLM with a specific system prompt.
-- **Delivery**: The Output Formatter aggregates responses into a single Markdown string and returns it to the UI.
+### Level 2: Container Diagram
 
-## 4. API Design (Contracts)
+Shows the React/Vite frontend, Node.js/Express API, and Gemini integration.
 
-<!-- todo -->
+![Container Diagram](./diagrams/c4_container_diagram.svg)
 
-//Not yet decided
+### Level 3: Backend Components
 
-## 5. Core Intelligence Strategies
+Shows the main backend processing components from request handling through
+Markdown generation.
 
-### A. Chunking Strategy: Sliding Window
+![Component Diagram](./diagrams/c4_component_diagram.svg)
 
-To prevent the AI from losing context when a sentence is split between two requests, planning to use a Sliding Window.
+## 3. Architectural Decisions
 
-- **Chunk Size**: ~4,000 characters.
-- **Overlap**: 400 characters.
-- **Why**: This ensures that if the end of Chunk A introduces a concept, Chunk B has enough context to understand how that concept continues.
+| Decision                        | Implementation                                                                                                                      | Reason                                                                              |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Client-server separation        | React owns presentation and browser state; Express owns subtitle processing and Gemini communication.                               | Keeps provider credentials and processing rules outside the browser.                |
+| Stateless API                   | Multer keeps one uploaded file in memory for the lifetime of the request.                                                           | Avoids permanent transcript storage and keeps requests independent.                 |
+| Service-oriented pipeline       | Validation, parsing, chunking, and AI orchestration live in separate modules.                                                       | Makes each processing stage easier to test and change independently.                |
+| Backend-enforced validation     | The API checks extension, MIME hint, UTF-8 content, binary markers, timecodes, file count, and size.                                | Client validation can be bypassed and is not a security boundary.                   |
+| Bounded transcript input        | Cleaned text is limited by `MAX_TRANSCRIPT_CHARACTERS`.                                                                             | Prevents unexpectedly large provider requests and limits quota exposure.            |
+| Dual runtime modes              | `VITE_DEMO_MODE` selects bundled sample generation; the backend uses `ENABLE_LIVE_GENERATION` as a separate live-generation switch. | Preserves a public product demonstration without requiring anonymous Gemini access. |
+| Browser-only result persistence | The latest Markdown result and safe file metadata are stored in `localStorage`.                                                     | Restores work after refresh without adding accounts or a database.                  |
 
-### B. Prompt Strategy: Role-Based Engineering
+## 4. Runtime Modes
 
-We utilize a "System Persona" to enforce output reliability.
+### Public Demo Mode
 
-- **Persona**: Senior Academic Teaching Assistant.
-- **Instruction**: "Extract key technical terms and explain them simply. Use hierarchical Markdown headings. Do not include time-stamps in the output."
-- **Format Enforcement**: "Output ONLY valid Markdown. No conversational filler."
+When `VITE_DEMO_MODE=true`, the frontend loads a bundled sample lecture and
+pre-generated Markdown. The generation API and Gemini are not called.
 
-<!-- Should allow user to add their custom prompts / needs as well -->
+The demo still exercises:
 
-## 6. Security & Error Handling
+- The generated-notes layout
+- Copy and Markdown download actions
+- Browser persistence and restore behavior
+- Source metadata and reset actions
 
-- **Rate Limiting**: Prevent API abuse using express-rate-limit.
-- **Input Sanitization**: Ensure the parser handles malformed or malicious text inputs without crashing.
-- **Graceful Failure**: If the AI API times out, the system returns a 504 Gateway Timeout with a user-friendly message rather than a raw code error.
+### Full Backend Mode
 
-## 7. Tech Stack
+When `VITE_DEMO_MODE=false`, the frontend sends the selected file to
+`POST /api/v1/generate`.
 
-**Frontend (Client-Side)**
+The backend generation route is available when:
 
-- **React (via Vite):** Chosen for its robust component-based architecture, making it easy to manage state for file uploads, loading indicators, and displaying dynamic results. Vite provides a significantly faster development and build experience.
-- **Tailwind CSS**
-- **React Markdown:** Essential for safely and accurately rendering the Markdown content generated by the AI Orchestrator into styled HTML elements for the user.
+- Development has not explicitly disabled live generation, or
+- Production sets `ENABLE_LIVE_GENERATION=true`
 
-**Backend (Server-Side)**
+## 5. Request and Data Flow
 
-- **Node.js:** Its asynchronous, non-blocking I/O model is perfect for handling the text processing, file parsing, and external API requests (to the LLM) required by this system.
-- **Express.js**
-- **Multer:** For receiving the uploaded `.srt` files from the frontend.
+1. **Select:** The user selects one `.srt` or `.vtt` file on `/try`.
+2. **Client validation:** The browser checks the extension and 5 MB limit.
+3. **Submit:** Axios sends `multipart/form-data` using the field name `file`.
+4. **Deployment gate:** Express checks whether live generation is enabled.
+5. **Rate limit:** The generation endpoint applies the configured request limit.
+6. **Upload validation:** Multer uses memory storage and enforces file, part, and
+   size limits.
+7. **Content validation:** The backend verifies the extension, MIME hint, UTF-8
+   decoding, absence of null bytes, and expected subtitle timecodes.
+8. **Parsing:** The SRT or VTT parser removes timestamps, sequence metadata,
+   tags, and repeated line breaks.
+9. **Transcript limit:** The controller rejects cleaned text above
+   `MAX_TRANSCRIPT_CHARACTERS`.
+10. **Segmentation:** `RecursiveCharacterTextSplitter` creates
+    4,000-character chunks with 400-character overlap.
+11. **Synthesis:** The current AI service joins the chunks with separators and
+    sends one bounded source-transcript prompt to Gemini 2.5 Flash.
+12. **Delivery:** Express returns the generated Markdown and request metadata.
+13. **Presentation:** React renders the Markdown and enables copy/download
+    actions.
+14. **Persistence:** The client stores the latest Markdown and validated file
+    metadata locally for refresh recovery.
 
-**AI Integration & Utilities**
+## 6. Component Responsibilities
 
-<!-- todo -->
+### Frontend
 
-- **Tokenization Library:**
-- **express-rate-limit:**
+| Component        | Responsibility                                                                                          |
+| ---------------- | ------------------------------------------------------------------------------------------------------- |
+| `LandingPage`    | Presents the product, workflow, engineering highlights, CTA, and footer.                                |
+| `TryPage`        | Coordinates file selection, demo/live modes, generation, errors, result state, and browser persistence. |
+| `FileUploader`   | Provides accessible drag-and-drop selection and client-side type/size validation.                       |
+| `MarkdownViewer` | Renders Markdown and provides copy and `.md` download actions.                                          |
+| `apiService`     | Builds the multipart request and calls the configured API prefix.                                       |
+| `demoStudyGuide` | Stores the bundled sample metadata and Markdown used in public demo mode.                               |
 
-## 8. Folder Strcuture
+### Backend
 
-![ Folder Structure](./diagrams/folder_structure_overview.png)
+| Component                   | Responsibility                                                                                         |
+| --------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `app.js`                    | Configures Express, CORS, Helmet, request limits, generation gating, rate limiting, and global errors. |
+| `uploadMiddleware`          | Receives one in-memory subtitle file and applies upload metadata/size limits.                          |
+| `subtitleValidationService` | Decodes UTF-8 content and verifies that it resembles the declared subtitle format.                     |
+| `generateController`        | Coordinates validation, parsing, transcript limits, chunking, AI generation, and the response.         |
+| `parserService`             | Removes SRT/VTT playback metadata and formatting tags.                                                 |
+| `chunkingService`           | Splits cleaned text recursively using configured chunk size and overlap.                               |
+| `aiService`                 | Configures Gemini, prompt boundaries, retries, timeout behavior, and provider error mapping.           |
+| `AppError`                  | Represents expected operational errors with HTTP status codes.                                         |
 
-**Detailed Folder Structure**
+## 7. API Contract
 
-![ Folder Structure Detailed](./diagrams/folder_structure_detailed.png)
+### Health
+
+- `GET /api/health`
+- Returns API availability as JSON
+
+### Generate Study Guide
+
+- `POST /api/v1/generate`
+- Content type: `multipart/form-data`
+- File field: `file`
+- Accepted formats: `.srt`, `.vtt`
+- Maximum upload size: 5 MB
+
+Successful responses contain:
+
+- `status`
+- Original file name
+- Generated chunk count
+- Markdown study guide
+
+## 8. AI Orchestration
+
+The AI service uses `gemini-2.5-flash` with:
+
+- A system instruction that defines the Markdown study-guide structure
+- A clear `SOURCE_TRANSCRIPT_START` / `SOURCE_TRANSCRIPT_END` boundary
+- Explicit treatment of transcript content as untrusted source material
+- Low-temperature generation for more consistent structure
+- Up to three attempts for transient provider failures
+- Exponential backoff with jitter
+- A configurable provider timeout
+- Safe 502, 503, and 504 error mapping
+
+The current implementation performs one synthesis request after recombining the
+segmented transcript. A future multi-pass summarization strategy could process
+chunks independently before a final merge if larger inputs require it.
+
+## 9. Security and Failure Boundaries
+
+- Gemini credentials are read only by the backend.
+- Production generation defaults to disabled unless explicitly enabled.
+- Production CORS accepts configured origins and otherwise fails closed.
+- Upload and transcript limits are enforced before Gemini is called.
+- The generation endpoint is rate-limited.
+- Helmet adds standard HTTP security headers.
+- Express framework fingerprinting is disabled.
+- Production responses hide stack traces and unexpected internal details.
+- Development retains restricted diagnostic output.
+- Uploaded transcript bodies are not logged in normal operation.
+
+The full implementation and threat model are documented in
+[the security audit report](./security-audit-report.md).
+
+## 10. Testing Strategy
+
+Native Node.js tests cover:
+
+- SRT and VTT parsing
+- Recursive chunking behavior
+- UTF-8 and subtitle timecode validation
+- Binary, unsupported, missing, and oversized uploads
+- Cleaned transcript-size limits
+- Security headers and configured CORS behavior
+- Production live-generation defaults
+- Endpoint rate limiting
+- Safe behavior when Gemini is not configured
+
+Run:
+
+```bash
+cd server
+npm test
+npm run test:coverage
+```
+
+The current suite contains 21 passing tests. The source-only coverage report is
+75.75% lines, 67.07% branches, and 73.91% functions.
+
+## 11. Tradeoffs and Current Limitations
+
+- Public demo mode uses a bundled result rather than live AI generation.
+- The server does not provide authentication or per-user generation history.
+- Browser persistence stores only the latest result.
+- The actual uploaded `File` object cannot be restored after a refresh.
+- Only UTF-8 `.srt` and `.vtt` files are supported.
+- AI output quality depends on transcript quality.
+- Chunk segmentation currently feeds one combined synthesis request rather than
+  a multi-stage map/reduce process.
+- Audio/video transcription and direct YouTube ingestion are outside the
+  current scope.

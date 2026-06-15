@@ -25,7 +25,9 @@ async function chunkText(text, maxChunkSize = 4000, overlap = 400) {
     const chunks = await splitter.splitText(text);
     return chunks;
   } catch (error) {
-    console.error("Error within chunkText service:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("[Chunking] Failed to split transcript:", error.message);
+    }
     throw new Error(`Chunking failed: ${error.message}`, { cause: error });
   }
 }

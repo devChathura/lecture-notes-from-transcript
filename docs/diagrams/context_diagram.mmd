@@ -1,9 +1,8 @@
-graph LR
-    User((Student)) -- Uses --> SPA[React Frontend]
-    
-    subgraph "Lecture notes from transcript System"
-        SPA -- "Sends file (POST /api/generate)" --> API[Node.js/Express API]
-        API -- "Returns Markdown JSON" --> SPA
-    end
+flowchart LR
+    User((Student / Learner))
+    System[Lecture Companion]
+    Gemini[Google Gemini API]
 
-    API -- "HTTPS/JSON Prompting" --> LLM[External AI API]
+    User -->|Uploads SRT/VTT and receives study notes| System
+    System -->|Sends bounded transcript source| Gemini
+    Gemini -->|Returns Markdown study guide| System

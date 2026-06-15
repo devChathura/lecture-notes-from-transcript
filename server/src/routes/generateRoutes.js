@@ -7,4 +7,3 @@ const router = express.Router();
 router.post("/", upload.single("file"), generateController.generateNotes);
 
 module.exports = router;
-

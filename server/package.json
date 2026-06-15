@@ -6,6 +6,7 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "test": "node --test tests/**/*.test.js",
+    "test:coverage": "node --experimental-test-coverage --test-coverage-include=\"src/**\" --test tests/**/*.test.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write ."
@@ -20,15 +21,26 @@
   "author": "Chathura Hapukotuwa",
   "license": "ISC",
   "description": "Backend API for AI powered lecture note generation from subtitle files.",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@langchain/textsplitters": "^1.0.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
     "multer": "^2.1.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.5.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
+    "globals": "^17.6.0",
+    "nodemon": "^3.1.14",
+    "prettier": "^3.8.4"
   }
 }

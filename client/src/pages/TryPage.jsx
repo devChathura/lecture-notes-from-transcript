@@ -9,6 +9,7 @@ import {
   FileText,
   Hash,
   History,
+  Info,
   ListChecks,
   Loader2,
   RefreshCw,
@@ -20,6 +21,10 @@ import FileUploader from "../components/FileUploader";
 import MarkdownViewer, {
   MARKDOWN_VIEWER_SAMPLE,
 } from "../components/MarkdownViewer";
+import {
+  DEMO_LECTURE,
+  DEMO_STUDY_GUIDE,
+} from "../data/demoStudyGuide";
 import { generateStudyGuide } from "../services/apiService";
 
 const processingSteps = [
@@ -36,6 +41,12 @@ const previewHighlights = [
 ];
 
 const GENERATION_STORAGE_KEY = "lecture-companion:last-generation";
+const MAX_CACHED_MARKDOWN_LENGTH = 500000;
+const MAX_CACHED_FILE_NAME_LENGTH = 255;
+const MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
+const IS_DEMO_MODE = import.meta.env.VITE_DEMO_MODE === "true";
+const GITHUB_REPOSITORY_URL =
+  "https://github.com/devChathura/lecture-notes-from-transcript";
 
 const formatGeneratedAt = (generatedAt) => {
   if (!generatedAt) {
@@ -94,15 +105,20 @@ const loadGeneratedNotesFromStorage = () => {
       storedResult?.version === 1 &&
       typeof storedResult.markdown === "string" &&
       storedResult.markdown.trim().length > 0 &&
+      storedResult.markdown.length <= MAX_CACHED_MARKDOWN_LENGTH &&
       typeof storedResult.fileName === "string" &&
       storedResult.fileName.trim().length > 0 &&
+      storedResult.fileName.length <= MAX_CACHED_FILE_NAME_LENGTH &&
       typeof storedResult.fileSize === "number" &&
       Number.isFinite(storedResult.fileSize) &&
       storedResult.fileSize >= 0 &&
+      storedResult.fileSize <= MAX_UPLOAD_SIZE &&
       typeof storedResult.fileType === "string" &&
       [".SRT", ".VTT"].includes(storedResult.fileType.toUpperCase()) &&
       typeof storedResult.generatedAt === "string" &&
-      !Number.isNaN(Date.parse(storedResult.generatedAt));
+      !Number.isNaN(Date.parse(storedResult.generatedAt)) &&
+      (storedResult.source === undefined ||
+        ["live", "demo"].includes(storedResult.source));
 
     if (!isValid) {
       clearGeneratedNotesStorage();
@@ -122,7 +138,11 @@ const loadGeneratedNotesFromStorage = () => {
   }
 };
 
-const saveGeneratedNotesToStorage = (markdown, file) => {
+const saveGeneratedNotesToStorage = (
+  markdown,
+  file,
+  source = "live"
+) => {
   try {
     const fileType = file.name
       .substring(file.name.lastIndexOf("."))
@@ -137,6 +157,7 @@ const saveGeneratedNotesToStorage = (markdown, file) => {
         fileSize: file.size,
         fileType,
         generatedAt: new Date().toISOString(),
+        source,
       })
     );
   } catch (storageError) {
@@ -297,6 +318,53 @@ const GenerationErrorPanel = ({ error, canRetry, onRetry }) => {
   );
 };
 
+const DemoGenerationMessage = ({ onTrySample }) => (
+  <div
+    className="try-state-enter mt-4 rounded-2xl border border-slate-200/80 bg-white/70 p-4 text-slate-700 shadow-[0_8px_24px_rgba(15,23,42,0.04)] backdrop-blur-md"
+    role="status"
+  >
+    <div className="flex items-start gap-3">
+      <span
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200/80 bg-slate-50 text-slate-600"
+        aria-hidden="true"
+      >
+        <Info className="h-4 w-4" />
+      </span>
+      <div className="min-w-0">
+        <p className="font-semibold text-slate-900">
+          Live generation is disabled in this demo
+        </p>
+        <p className="mt-1 text-sm leading-relaxed text-slate-600">
+          To keep the public demo safe and quota-friendly, custom AI
+          generation is turned off here. Try the sample lecture, or run the
+          project locally with your own Google Gemini API key to test the
+          complete backend flow.
+        </p>
+      </div>
+    </div>
+
+    <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+      <button
+        type="button"
+        onClick={onTrySample}
+        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-black hover:shadow-md active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 motion-reduce:transform-none"
+      >
+        <Sparkles className="h-4 w-4" aria-hidden="true" />
+        Try sample lecture
+      </button>
+      <a
+        href={GITHUB_REPOSITORY_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-slate-200/90 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+      >
+        View GitHub setup
+        <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+      </a>
+    </div>
+  </div>
+);
+
 const TryPage = () => {
   const [initialStoredResult] = useState(loadGeneratedNotesFromStorage);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -307,6 +375,7 @@ const TryPage = () => {
           fileSize: initialStoredResult.fileSize,
           fileType: initialStoredResult.fileType.toUpperCase(),
           generatedAt: initialStoredResult.generatedAt,
+          source: initialStoredResult.source || "live",
         }
       : null
   );
@@ -318,6 +387,8 @@ const TryPage = () => {
   );
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(null);
+  const [showDemoGenerationMessage, setShowDemoGenerationMessage] =
+    useState(false);
   const [activeProcessingStep, setActiveProcessingStep] = useState(0);
   const showMarkdownSample =
     import.meta.env.DEV &&
@@ -334,6 +405,7 @@ const TryPage = () => {
         fileType: selectedFile.name
           .substring(selectedFile.name.lastIndexOf("."))
           .toUpperCase(),
+        source: "live",
       }
     : restoredFileMeta;
   const hasGeneratedNotes = Boolean(markdown && sourceFileMeta);
@@ -344,6 +416,8 @@ const TryPage = () => {
   const restoredGeneratedAt = formatGeneratedAt(
     restoredFileMeta?.generatedAt
   );
+  const isCurrentDemoResult =
+    sourceFileMeta?.source === "demo" && !isRestoredFromCache;
 
   useEffect(() => {
     if (
@@ -367,6 +441,7 @@ const TryPage = () => {
     setRestoredFileMeta(null);
     setIsRestoredFromCache(false);
     setError(null);
+    setShowDemoGenerationMessage(false);
     clearGeneratedNotesStorage();
 
     if (!file) {
@@ -383,6 +458,13 @@ const TryPage = () => {
     }
 
     setError(null);
+    setShowDemoGenerationMessage(false);
+
+    if (IS_DEMO_MODE) {
+      setShowDemoGenerationMessage(true);
+      return;
+    }
+
     setActiveProcessingStep(0);
     setIsGenerating(true);
 
@@ -398,14 +480,41 @@ const TryPage = () => {
       setIsRestoredFromCache(false);
       saveGeneratedNotesToStorage(result.data.markdown, selectedFile);
     } catch (requestError) {
-      console.error(
-        "[Lecture Companion] Study note generation failed:",
-        requestError
-      );
+      if (import.meta.env.DEV) {
+        console.error(
+          "[Lecture Companion] Study note generation failed:",
+          requestError
+        );
+      }
       setError(normalizeGenerationError(requestError));
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleTrySampleLecture = () => {
+    const generatedAt = new Date().toISOString();
+    const sampleMeta = {
+      ...DEMO_LECTURE,
+      generatedAt,
+    };
+
+    setSelectedFile(null);
+    setRestoredFileMeta(sampleMeta);
+    setIsRestoredFromCache(false);
+    setMarkdown(DEMO_STUDY_GUIDE);
+    setError(null);
+    setShowDemoGenerationMessage(false);
+    setActiveProcessingStep(0);
+    setIsGenerating(false);
+    saveGeneratedNotesToStorage(
+      DEMO_STUDY_GUIDE,
+      {
+        name: DEMO_LECTURE.fileName,
+        size: DEMO_LECTURE.fileSize,
+      },
+      "demo"
+    );
   };
 
   const handleUploadAnotherFile = () => {
@@ -414,6 +523,7 @@ const TryPage = () => {
     setIsRestoredFromCache(false);
     setMarkdown(null);
     setError(null);
+    setShowDemoGenerationMessage(false);
     setActiveProcessingStep(0);
     setIsGenerating(false);
     clearGeneratedNotesStorage();
@@ -449,7 +559,7 @@ const TryPage = () => {
               <span className="hidden sm:inline">Back to home</span>
             </a>
             <a
-              href="https://github.com/devChathura/lecture-notes-from-transcript"
+              href={GITHUB_REPOSITORY_URL}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="View Lecture Companion on GitHub"
@@ -462,23 +572,80 @@ const TryPage = () => {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl px-4 pb-12 pt-6 sm:px-6 sm:pb-16 sm:pt-8 lg:px-8">
+      <main className="relative z-10 mx-auto max-w-7xl px-4 pb-12 pt-5 sm:px-6 sm:pb-16 sm:pt-7 lg:px-8">
         <div className="max-w-3xl">
           <p className="try-title-enter try-title-label text-sm font-semibold uppercase tracking-wide text-slate-500">
             Study-note generator
           </p>
-          <h1 className="try-title-enter try-title-heading mt-2.5 text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+          <h1 className="try-title-enter try-title-heading mt-2 text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
             Try Lecture Companion
           </h1>
-          <p className="try-title-enter try-title-copy mt-3 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+          <p className="try-title-enter try-title-copy mt-2.5 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
             Upload a .srt or .vtt subtitle file and generate clean study notes.
           </p>
         </div>
 
+        {IS_DEMO_MODE && (
+          <div className="try-demo-notice-enter mt-4 rounded-2xl border border-slate-200/80 bg-white/70 px-4 py-3 shadow-[0_10px_28px_rgba(15,23,42,0.045)] backdrop-blur-md sm:px-5">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex min-w-0 items-start gap-3">
+                <span
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200/80 bg-slate-50 text-slate-600 shadow-sm"
+                  aria-hidden="true"
+                >
+                  <Info className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-semibold text-slate-950">
+                      Public demo mode
+                    </p>
+                    <span className="rounded-full border border-slate-200/80 bg-slate-50/90 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+                      Sample generation
+                    </span>
+                  </div>
+                  <p className="mt-1 max-w-3xl text-sm leading-5 text-slate-600">
+                    Live AI generation is disabled to protect API usage. Try a
+                    sample lecture to preview, copy, download, and restore
+                    generated notes.
+                  </p>
+                  <p className="mt-1 text-xs leading-4 text-slate-500">
+                    Run the full backend workflow locally with your own Google
+                    Gemini API key.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={handleTrySampleLecture}
+                  className="inline-flex min-h-9 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-black hover:shadow-md active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 motion-reduce:transform-none"
+                >
+                  <Sparkles className="h-4 w-4" aria-hidden="true" />
+                  Try sample lecture
+                </button>
+                <a
+                  href={GITHUB_REPOSITORY_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-slate-200/90 bg-white px-4 py-1.5 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+                >
+                  View setup on GitHub
+                  <ExternalLink
+                    className="h-3.5 w-3.5"
+                    aria-hidden="true"
+                  />
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div
-          className={`mt-6 grid grid-cols-1 items-start gap-6 transition-[grid-template-columns] duration-500 ease-out motion-reduce:transition-none lg:gap-8 ${
+          className={`mt-5 grid grid-cols-1 items-start gap-6 transition-[grid-template-columns] duration-500 ease-out motion-reduce:transition-none lg:gap-8 ${
             hasGeneratedNotes
-              ? "lg:grid-cols-[minmax(240px,0.62fr)_minmax(0,1.38fr)]"
+              ? "lg:grid-cols-[minmax(230px,0.58fr)_minmax(0,1.42fr)]"
               : "lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
           }`}
         >
@@ -497,7 +664,11 @@ const TryPage = () => {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                      {isRestoredFromCache ? "Restored notes" : "Source file"}
+                      {isRestoredFromCache
+                        ? "Restored notes"
+                        : isCurrentDemoResult
+                          ? "Sample lecture"
+                          : "Source file"}
                     </p>
                     <h2
                       id="source-file-heading"
@@ -505,7 +676,9 @@ const TryPage = () => {
                     >
                       {isRestoredFromCache
                         ? "Previous study guide restored"
-                        : "Notes generated"}
+                        : isCurrentDemoResult
+                          ? "Sample study guide"
+                          : "Notes generated"}
                     </h2>
                   </div>
                   <span
@@ -524,7 +697,11 @@ const TryPage = () => {
                         aria-hidden="true"
                       />
                     )}
-                    {isRestoredFromCache ? "Restored" : "Ready"}
+                    {isRestoredFromCache
+                      ? "Restored"
+                      : isCurrentDemoResult
+                        ? "Demo"
+                        : "Ready"}
                   </span>
                 </div>
 
@@ -556,7 +733,9 @@ const TryPage = () => {
                 <p className="mt-4 text-sm leading-6 text-slate-600">
                   {selectedFile
                     ? "Your study guide is ready. You can regenerate notes from this file or upload another transcript."
-                    : "Your generated notes were saved locally in this browser. Upload the original file again if you want to regenerate them."}
+                    : isCurrentDemoResult
+                      ? "This pre-generated sample demonstrates the complete notes experience without using the live AI service."
+                      : "Your generated notes were saved locally in this browser. Upload the original file again if you want to regenerate them."}
                 </p>
 
                 <div className="mt-5 grid gap-2.5">
@@ -637,14 +816,16 @@ const TryPage = () => {
                     Upload your transcript
                   </h2>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    Choose one subtitle file up to 5MB. Subtitle cleanup and AI
-                    generation run through the backend.
+                    {IS_DEMO_MODE
+                      ? "Choose one subtitle file up to 5MB to test upload validation. Use the sample lecture to preview generated notes."
+                      : "Choose one subtitle file up to 5MB. Subtitle cleanup and AI generation run through the backend."}
                   </p>
                 </div>
 
                 <FileUploader
                   onFileSelect={handleFileSelect}
                   disabled={isGenerating}
+                  readyLabel={IS_DEMO_MODE ? "File validated" : undefined}
                 />
 
                 <button
@@ -683,6 +864,11 @@ const TryPage = () => {
                   canRetry={Boolean(selectedFile) && !isGenerating}
                   onRetry={handleGenerate}
                 />
+                {showDemoGenerationMessage && (
+                  <DemoGenerationMessage
+                    onTrySample={handleTrySampleLecture}
+                  />
+                )}
               </>
             )}
           </section>
@@ -696,7 +882,7 @@ const TryPage = () => {
             </h2>
             {isGenerating ? (
               <div
-                className="try-state-enter flex min-h-[340px] flex-col items-center justify-center rounded-2xl border border-slate-200/70 bg-white/60 px-6 py-9 text-center shadow-[0_14px_40px_rgba(15,23,42,0.04)] backdrop-blur-md sm:min-h-[400px] sm:px-10 lg:min-h-[460px]"
+                className="try-state-enter flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-slate-200/70 bg-white/60 px-6 py-8 text-center shadow-[0_14px_40px_rgba(15,23,42,0.04)] backdrop-blur-md sm:min-h-[380px] sm:px-10 lg:min-h-[440px]"
                 aria-live="polite"
                 aria-label={`Preparing study guide: ${processingSteps[activeProcessingStep]}`}
               >
@@ -761,6 +947,14 @@ const TryPage = () => {
                     </span>
                   </div>
                 )}
+                {isCurrentDemoResult && (
+                  <div className="mb-3 flex justify-start">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200/70 bg-slate-100/80 px-3 py-1 text-xs font-semibold text-slate-600">
+                      <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                      Sample lecture result
+                    </span>
+                  </div>
+                )}
                 <MarkdownViewer
                   markdown={displayedMarkdown}
                   fileName={
@@ -770,7 +964,7 @@ const TryPage = () => {
                 />
               </div>
             ) : (
-              <div className="try-state-enter flex min-h-[340px] flex-col items-center justify-center rounded-2xl border border-slate-200/70 bg-white/60 px-6 py-9 text-center shadow-[0_14px_40px_rgba(15,23,42,0.04)] backdrop-blur-md sm:min-h-[400px] sm:px-10 lg:min-h-[460px]">
+              <div className="try-state-enter flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-slate-200/70 bg-white/60 px-6 py-8 text-center shadow-[0_14px_40px_rgba(15,23,42,0.04)] backdrop-blur-md sm:min-h-[380px] sm:px-10 lg:min-h-[440px]">
                 <span
                   className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200/80 bg-white text-slate-600 shadow-sm"
                   aria-hidden="true"
@@ -786,7 +980,7 @@ const TryPage = () => {
                 </p>
 
                 <div
-                  className="mt-6 flex flex-wrap justify-center gap-2"
+                  className="mt-5 flex flex-wrap justify-center gap-2"
                   aria-hidden="true"
                 >
                   {previewHighlights.map(({ label, icon: Icon }) => (
@@ -798,6 +992,22 @@ const TryPage = () => {
                       {label}
                     </span>
                   ))}
+                </div>
+
+                <div
+                  className="mt-6 w-full max-w-sm border-t border-slate-200/70 pt-5 text-left"
+                  aria-hidden="true"
+                >
+                  <div className="h-2 w-2/5 rounded-full bg-slate-200/80" />
+                  <div className="mt-3 space-y-2">
+                    <div className="h-1.5 w-full rounded-full bg-slate-200/55" />
+                    <div className="h-1.5 w-11/12 rounded-full bg-slate-200/55" />
+                    <div className="h-1.5 w-4/5 rounded-full bg-slate-200/55" />
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <span className="h-2 w-2 rounded-full bg-slate-300/80" />
+                    <div className="h-1.5 w-3/5 rounded-full bg-slate-200/55" />
+                  </div>
                 </div>
               </div>
             )}
