@@ -10,6 +10,7 @@
 ![Gemini 2.5 Flash](https://img.shields.io/badge/Gemini-2.5_Flash-4285F4?logo=google&logoColor=white)
 
 [GitHub](https://github.com/devChathura/lecture-notes-from-transcript) |
+[Live Demo](https://lecture-companion.netlify.app/) |
 [Parser article](https://medium.com/@nozerochathura/building-a-stateless-subtitle-parser-in-node-js-extracting-clean-text-from-srt-and-vtt-files-d978d6c3b34c) |
 [Portfolio](https://chathura-hapukotuwa.netlify.app/) |
 [LinkedIn](https://www.linkedin.com/in/chathura-hapukotuwa/)
