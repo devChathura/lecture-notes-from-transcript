@@ -41,6 +41,9 @@ const previewHighlights = [
 ];
 
 const GENERATION_STORAGE_KEY = "lecture-companion:last-generation";
+const MAX_CACHED_MARKDOWN_LENGTH = 500000;
+const MAX_CACHED_FILE_NAME_LENGTH = 255;
+const MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
 const IS_DEMO_MODE = import.meta.env.VITE_DEMO_MODE === "true";
 const GITHUB_REPOSITORY_URL =
   "https://github.com/devChathura/lecture-notes-from-transcript";
@@ -102,11 +105,14 @@ const loadGeneratedNotesFromStorage = () => {
       storedResult?.version === 1 &&
       typeof storedResult.markdown === "string" &&
       storedResult.markdown.trim().length > 0 &&
+      storedResult.markdown.length <= MAX_CACHED_MARKDOWN_LENGTH &&
       typeof storedResult.fileName === "string" &&
       storedResult.fileName.trim().length > 0 &&
+      storedResult.fileName.length <= MAX_CACHED_FILE_NAME_LENGTH &&
       typeof storedResult.fileSize === "number" &&
       Number.isFinite(storedResult.fileSize) &&
       storedResult.fileSize >= 0 &&
+      storedResult.fileSize <= MAX_UPLOAD_SIZE &&
       typeof storedResult.fileType === "string" &&
       [".SRT", ".VTT"].includes(storedResult.fileType.toUpperCase()) &&
       typeof storedResult.generatedAt === "string" &&
@@ -474,10 +480,12 @@ const TryPage = () => {
       setIsRestoredFromCache(false);
       saveGeneratedNotesToStorage(result.data.markdown, selectedFile);
     } catch (requestError) {
-      console.error(
-        "[Lecture Companion] Study note generation failed:",
-        requestError
-      );
+      if (import.meta.env.DEV) {
+        console.error(
+          "[Lecture Companion] Study note generation failed:",
+          requestError
+        );
+      }
       setError(normalizeGenerationError(requestError));
     } finally {
       setIsGenerating(false);

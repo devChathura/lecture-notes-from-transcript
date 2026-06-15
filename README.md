@@ -121,8 +121,15 @@ Then edit `server/config.env`:
 
 ```env
 PORT=5001
+NODE_ENV=development
 GEMINI_API_KEY=your_gemini_api_key_here
+ENABLE_LIVE_GENERATION=true
 CORS_ORIGIN=http://localhost:5173
+TRUST_PROXY_HOPS=0
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=10
+MAX_TRANSCRIPT_CHARACTERS=200000
+AI_REQUEST_TIMEOUT_MS=120000
 ```
 
 Start the backend server:
@@ -156,7 +163,9 @@ the server environment only.
 
 Public demo mode uses a bundled sample result to avoid exposing or consuming
 live Gemini API quota. The full backend-powered workflow can still be run
-locally with a Gemini API key.
+locally with a Gemini API key. Set `VITE_DEMO_MODE=true` for the public frontend
+deployment, and leave `ENABLE_LIVE_GENERATION` unset or `false` on any public
+backend deployment that should remain sample-only.
 
 ### 4. Build Commands
 
@@ -217,6 +226,25 @@ The backend exposes a simple REST API to handle text synthesis.
 - **Transcript Parsing:** Strip timecodes, sequence numbers, and any residual HTML before passing it to the chunking engine.
 - **Chunking Engine:** Uses `@langchain/textsplitters` for robust text segmentation, employing a sliding window technique (overlap) to prevent the loss of semantic meaning at chunk boundaries.
 - **AI Processing:** Interacts with the `@google/generative-ai` SDK using a strictly defined system prompt to force output into hierarchical markdown.
+- **Upload Safety:** The backend validates subtitle extensions, MIME hints, UTF-8
+  content, subtitle timecodes, file count, and the 5 MB upload limit before
+  parsing.
+- **Abuse Protection:** The generation endpoint is rate-limited. When deploying
+  behind a trusted reverse proxy, set `TRUST_PROXY_HOPS` to the exact number of
+  proxy hops so client IP limits remain accurate.
+- **Live Generation Kill Switch:** Production disables the generation endpoint
+  unless `ENABLE_LIVE_GENERATION=true` is explicitly configured. Keep it
+  disabled for the public sample-only portfolio deployment.
+- **Production CORS:** Set `CORS_ORIGIN` to the deployed frontend origin. Multiple
+  origins can be comma-separated. Production does not allow arbitrary origins
+  when this value is omitted.
+- **Transcript Limit:** `MAX_TRANSCRIPT_CHARACTERS` caps cleaned input before an
+  AI request to reduce accidental quota spikes.
+- **Provider Timeout:** `AI_REQUEST_TIMEOUT_MS` bounds individual Gemini
+  requests so stalled provider calls fail cleanly.
+- **Transcript Privacy:** In live mode, uploaded transcript content is sent to
+  Google Gemini to generate the study guide. Do not upload sensitive material
+  unless that processing is appropriate for the content.
 
 ---
 
